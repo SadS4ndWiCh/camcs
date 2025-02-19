@@ -218,6 +218,7 @@ Thanks to the great advances in the field of *Magical Science*, *Arcane Biology*
 | `id`       | `PK` `INT` `AUTO_INCREMENT` | The individual's id       |
 | `name`     | `VARCHAR(64)`               | The individual's name     |
 | `soul`     | `VARCHAR(255)` `UNIQUE`     | The individual's soul     |
+| `code`     | `VARCHAR(255)`              | The individual's code     |
 | `insignia` | `INT`                       | The individual's insignia |
 
 #### Individual Metadata
