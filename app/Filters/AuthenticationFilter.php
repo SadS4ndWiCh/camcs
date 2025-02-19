@@ -17,7 +17,7 @@ class AuthenticationFilter implements FilterInterface
      */
     public function before(RequestInterface $request, $arguments = null)
     {
-        $authenticationHeader = $request->getServer('HTTP_AUTHENTICATION');
+        $authenticationHeader = $request->getServer('HTTP_AUTHORIZATION');
 
         helper('jwt');
         $token = JWT_extractTokenFromHeader($authenticationHeader);
