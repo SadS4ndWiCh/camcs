@@ -76,9 +76,56 @@ class Auth extends BaseController
         $db->transComplete();
         log_message('info', 'The "{name}" ceremory completes successfuly.', $data);
 
+        helper('jwt');
+        $token = JWT_signTokenFor($individualId);
+
+        $individual = $individualModel->find($individualId);
+        unset($individual['code']);
+
         return $this->getResponse(
-            ['individual' => $individualId],
+            [
+                'message'      => 'Ceremony successfuly completed.',
+                'individual'   => $individual,
+                'access_token' => $token
+            ],
             ResponseInterface::HTTP_CREATED
         );
+    }
+
+    public function login()
+    {
+        $rules = [
+            'soul' => 'required|min_length[6]|max_length[255]',
+            'code' => 'required|min_length[6]|max_length[255]'
+        ];
+
+        $data = $this->getRequestData();
+        if (!$this->validateData($data, $rules)) {
+            return $this->getResponse(
+                ['error' => $this->validator->getErrors()],
+                ResponseInterface::HTTP_BAD_REQUEST
+            );
+        }
+
+        $individualModel = new IndividualModel();
+        $individual = $individualModel->where('soul', $data['soul'])->first();
+
+        if (is_null($individual)) {
+            return $this->getResponse(
+                ['error' => 'Individual with given soul not found.'],
+                ResponseInterface::HTTP_BAD_REQUEST
+            );
+        }
+
+        helper('jwt');
+
+        $token = JWT_signTokenFor($individual['id']);
+        unset($individual['code']);
+
+        return $this->getResponse([
+            'message'      => 'Successfuly logged.',
+            'individual'   => $individual,
+            'access_token' => $token
+        ]);
     }
 }

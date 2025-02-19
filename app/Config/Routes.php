@@ -7,3 +7,4 @@ use CodeIgniter\Router\RouteCollection;
  */
 
 $routes->post('/api/ceremony', 'Auth::ceremony');
+$routes->post('/api/ceremony/login', 'Auth::login');
