@@ -24,6 +24,10 @@ class AddIndividual extends Migration
                 'constraint' => '255',
                 'unique'     => true
             ],
+            'code' => [
+                'type'       => 'VARCHAR',
+                'constraint' => '255'
+            ],
             'insignia' => [
                 'type'     => 'INT',
                 'unsigned' => true
