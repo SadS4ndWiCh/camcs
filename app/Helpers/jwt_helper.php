@@ -14,18 +14,22 @@ function JWT_extractTokenFromHeader($authorizationHeader): string|null
     return explode(' ', $authorizationHeader)[1];
 }
 
-function JWT_validateToken(string $encodedToken): bool
+function JWT_validateToken(string $encodedToken): array|null
 {
     $key = Services::getJWTSecretKey();
     $individualModel = new IndividualModel();
 
     try {
         $decodedToken = JWT::decode($encodedToken, new Key($key, 'HS256'));
+        $individual = $individualModel->find($decodedToken->id);
 
-        $individual = $individualModel->find($decodedToken['id']);
-        return !is_null($individual);
+        return [
+            'payload'    => $decodedToken,
+            'individual' => $individual
+        ];
     } catch (Exception $e) {
-        return false;
+        log_message('critical', $e->getMessage());
+        return null;
     }
 }
 
