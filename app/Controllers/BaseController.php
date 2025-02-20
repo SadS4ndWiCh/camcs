@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Models\IndividualModel;
 use CodeIgniter\Controller;
 use CodeIgniter\HTTP\CLIRequest;
 use CodeIgniter\HTTP\IncomingRequest;
@@ -71,5 +72,27 @@ abstract class BaseController extends Controller
         return $this->response
             ->setJSON($data)
             ->setStatusCode($code);
+    }
+
+    public function getAuthenticated()
+    {
+        $authenticationHeader = $this->request->getServer('HTTP_AUTHORIZATION');
+
+        helper('jwt');
+
+        $token = JWT_extractTokenFromHeader($authenticationHeader);
+        if (is_null($token)) {
+            return null;
+        }
+
+        $payload = JWT_validateToken($token);
+        if (is_null($payload)) {
+            return null;
+        }
+
+        $individualModel = new IndividualModel();
+        $individual = $individualModel->find($payload->id);
+
+        return $individual;
     }
 }
