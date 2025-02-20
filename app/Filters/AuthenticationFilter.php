@@ -22,11 +22,19 @@ class AuthenticationFilter implements FilterInterface
         helper('jwt');
         $token = JWT_extractTokenFromHeader($authenticationHeader);
 
-        if (!is_null($token)) return $request;
+        if (is_null($token)) {
+            return Services::response()
+                ->setJSON(['error' => 'Missing authentication token.'])
+                ->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED);
+        }
 
-        return Services::response()
-            ->setJSON(['error' => 'Missing or invalid JWT.'])
-            ->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED);
+        if (is_null(JWT_validateToken($token))) {
+            return Services::response()
+                ->setJSON(['error' => 'Invalid authentication token.'])
+                ->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED);
+        }
+
+        return $request;
     }
 
     /**
