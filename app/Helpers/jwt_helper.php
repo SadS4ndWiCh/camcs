@@ -5,6 +5,12 @@ use Config\Services;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 
+/**
+ * Extract the token from the givin Authorization header.
+ * 
+ * @param string $authorizationHeader `Bearer XXXXXXXX-XXXXXXX`
+ * @return string|null
+ */
 function JWT_extractTokenFromHeader($authorizationHeader): string|null
 {
     if (is_null($authorizationHeader)) {
@@ -14,25 +20,29 @@ function JWT_extractTokenFromHeader($authorizationHeader): string|null
     return explode(' ', $authorizationHeader)[1];
 }
 
-function JWT_validateToken(string $encodedToken): array|null
+/**
+ * Validates the token authenticity and returns it payload.
+ * 
+ * @param string $encodedToken
+ * @return stdClass|null
+ */
+function JWT_validateToken(string $encodedToken): stdClass|null
 {
     $key = Services::getJWTSecretKey();
-    $individualModel = new IndividualModel();
 
     try {
-        $decodedToken = JWT::decode($encodedToken, new Key($key, 'HS256'));
-        $individual = $individualModel->find($decodedToken->id);
-
-        return [
-            'payload'    => $decodedToken,
-            'individual' => $individual
-        ];
+        return JWT::decode($encodedToken, new Key($key, 'HS256'));
     } catch (Exception $e) {
-        log_message('critical', $e->getMessage());
         return null;
     }
 }
 
+/**
+ * Create a signed token for the givin ID.
+ * 
+ * @param int $id
+ * @return string
+ */
 function JWT_signTokenFor(int $id): string
 {
     $issuedAtTime = time();
