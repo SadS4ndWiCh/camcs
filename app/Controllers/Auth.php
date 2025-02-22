@@ -32,7 +32,7 @@ class Auth extends BaseController
 
         // The logic to choose the insignia should be inside class `beforeInsert`.
         $choosedIdx = random_int(0, count($individualModel::$INSIGNIAS) - 1);
-        $data['insignia'] = $choosedIdx + 1;
+        $data['insignia'] = $choosedIdx;
 
         log_message('info', 'The "{name}" receives the insignia "{insignia}".', $data);
 

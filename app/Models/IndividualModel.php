@@ -31,7 +31,7 @@ class IndividualModel extends Model
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['name', 'soul', 'code'];
+    protected $allowedFields    = ['name', 'soul', 'code', 'insignia'];
 
     protected bool $allowEmptyInserts = false;
     protected bool $updateOnlyChanged = true;
