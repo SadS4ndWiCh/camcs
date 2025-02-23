@@ -29,7 +29,7 @@ class AddIndividualsHasSpells extends Migration
 
         $this->forge
             ->addField($fields)
-            ->addPrimaryKey(['individual_id', 'spell_id'])
+            ->addPrimaryKey(['individual_id', 'spell_id'], 'id')
             ->addForeignKey('individual_id', 'individuals', 'id')
             ->addForeignKey('spell_id', 'spells', 'id')
             ->createTable('individuals_has_spells');
