@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Controllers\BaseController;
 use App\Models\IndividualHasSpellsModel;
 use App\Models\IndividualMetadataModel;
+use App\Models\IndividualModel;
 use App\Models\SpellModel;
 use CodeIgniter\HTTP\ResponseInterface;
 use Exception;
@@ -20,10 +21,8 @@ class Individuals extends BaseController
                 ->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED);
         }
 
-        $metadataModel = new IndividualMetadataModel();
-        $metadata = $metadataModel
-            ->where('individual_id', $individual['id'])
-            ->first();
+        $individualModel = new IndividualModel();
+        $metadata = $individualModel->getMetadataFromId($individual['id']);
 
         if (is_null($metadata)) {
             log_message('warning', 'The metadata from "{id}" was not found.', $individual);
@@ -71,10 +70,8 @@ class Individuals extends BaseController
                 ->setStatusCode(ResponseInterface::HTTP_BAD_REQUEST);
         }
 
-        $individualMetadataModel = new IndividualMetadataModel();
-        $metadata = $individualMetadataModel
-            ->where('individual_id', $individual['id'])
-            ->first();
+        $individualModel = new IndividualModel();
+        $metadata = $individualModel->getMetadataFromId($individual['id']);
 
         if (is_null($metadata)) {
             return $this->response
@@ -140,6 +137,8 @@ class Individuals extends BaseController
         }
 
         $metadata['sp'] += $totalSPToReceive;
+
+        $individualMetadataModel = new IndividualMetadataModel();
         $individualMetadataModel->update($metadata['id'], $metadata);
 
         return $this->response->setJSON(['message' => 'Pray successfuly completed.']);
@@ -179,10 +178,8 @@ class Individuals extends BaseController
                 ->setStatusCode(ResponseInterface::HTTP_BAD_REQUEST);
         }
 
-        $individualMetadataModel = new IndividualMetadataModel();
-        $metadata = $individualMetadataModel
-            ->where('individual_id', $individual['id'])
-            ->first();
+        $individualModel = new IndividualModel();
+        $metadata = $individualModel->getMetadataFromId($individual['id']);
 
         if (is_null($metadata)) {
             log_message('critical', 'Individual "{id}"\'s metadata not found.', $individual);
@@ -201,6 +198,7 @@ class Individuals extends BaseController
         $metadata['mp'] -= $spell['mana'];
 
         try {
+            $individualMetadataModel = new IndividualMetadataModel();
             $individualMetadataModel->update($metadata['id'], $metadata);
         } catch (Exception $e) {
             return $this->response

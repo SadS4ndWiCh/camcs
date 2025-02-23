@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Controllers\BaseController;
 use App\Models\IndividualHasSpellsModel;
 use App\Models\IndividualMetadataModel;
+use App\Models\IndividualModel;
 use App\Models\SpellModel;
 use CodeIgniter\HTTP\ResponseInterface;
 use Exception;
@@ -84,10 +85,8 @@ class Spells extends BaseController
                 ->setStatusCode(ResponseInterface::HTTP_BAD_REQUEST);
         }
 
-        $individualMetadataModel = new IndividualMetadataModel();
-        $metadata = $individualMetadataModel
-            ->where('individual_id', $individual['id'])
-            ->first();
+        $individualModel = new IndividualModel();
+        $metadata = $individualModel->getMetadataFromId($individual['id']);
 
         if (is_null($metadata)) {
             log_message('warning', 'The metadata from "{id}" was not found.', $individual);
@@ -116,6 +115,7 @@ class Spells extends BaseController
         $db->transStart();
 
         try {
+            $individualMetadataModel = new IndividualMetadataModel();
             $individualMetadataModel->update($metadata['id'], $metadata);
             $individualHasSpellsModel->insert([
                 'individual_id' => $individual['id'],

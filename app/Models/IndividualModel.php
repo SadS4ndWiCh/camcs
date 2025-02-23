@@ -84,4 +84,14 @@ class IndividualModel extends Model
 
         return $data;
     }
+
+    public function getMetadataFromId($individualId)
+    {
+        $individualMetadataModel = new IndividualMetadataModel();
+        $metadata = $individualMetadataModel
+            ->where('individual_id', $individualId)
+            ->first();
+
+        return $metadata;
+    }
 }
