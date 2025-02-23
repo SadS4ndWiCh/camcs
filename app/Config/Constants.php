@@ -77,3 +77,18 @@ defined('EXIT_USER_INPUT')     || define('EXIT_USER_INPUT', 7);     // invalid u
 defined('EXIT_DATABASE')       || define('EXIT_DATABASE', 8);       // database error
 defined('EXIT__AUTO_MIN')      || define('EXIT__AUTO_MIN', 9);      // lowest automatically-assigned error code
 defined('EXIT__AUTO_MAX')      || define('EXIT__AUTO_MAX', 125);    // highest automatically-assigned error code
+
+/*
+ |--------------------------------------------------------------------------
+ | Insignias Types
+ |--------------------------------------------------------------------------
+ |
+ | All avaiable insignias that individuals can receive.
+ */
+
+defined('INS_WATER')    || define('INS_WATER', 0);
+defined('INS_FIRE')     || define('INS_FIRE', 1);
+defined('INS_EARTH')    || define('INS_EARTH', 2);
+defined('INS_AIR')      || define('INS_AIR', 3);
+defined('INS_DARKNESS') || define('INS_DARKNESS', 4);
+defined('INS_LIGHT')    || define('INS_LIGHT', 5);
