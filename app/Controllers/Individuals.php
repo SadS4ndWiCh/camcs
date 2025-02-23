@@ -3,8 +3,13 @@
 namespace App\Controllers;
 
 use App\Controllers\BaseController;
+use App\Models\IndividualHasSpellsModel;
 use App\Models\IndividualMetadataModel;
+use App\Models\SpellModel;
+use CodeIgniter\HTTP\Response;
 use CodeIgniter\HTTP\ResponseInterface;
+use Exception;
+use PHPUnit\Framework\ExpectationFailedException;
 
 class Individuals extends BaseController
 {
@@ -144,5 +149,72 @@ class Individuals extends BaseController
         $individualMetadataModel->update($metadata['id'], $metadata);
 
         return $this->getResponse(['message' => 'Pray successfuly completed.']);
+    }
+
+    public function releaseSpell($spellId)
+    {
+        $individual = $this->getAuthenticated();
+        if (is_null($individual)) {
+            return $this->response
+                ->setJSON(['error' => 'Unauthorized'])
+                ->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED);
+        }
+
+        $individualHasSpellsModel = new IndividualHasSpellsModel();
+        $individualSpell = $individualHasSpellsModel
+            ->where('individual_id', $individual['id'])
+            ->where('spell_id', $spellId)
+            ->first();
+
+        if (is_null($individualSpell)) {
+            return $this->response
+                ->setJSON(['error' => 'You don\'t have this spell.'])
+                ->setStatusCode(ResponseInterface::HTTP_NOT_FOUND);
+        }
+
+        $spellModel = new SpellModel();
+        $spell = $spellModel->find($spellId);
+
+        if (is_null($spell)) {
+            log_message('warning', 'Spell "{spellId}" was found in individual_has_spell but not in spells', [
+                'spellId' => $spellId
+            ]);
+
+            return $this->response
+                ->setJSON(['error' => 'Spell not found.'])
+                ->setStatusCode(ResponseInterface::HTTP_BAD_REQUEST);
+        }
+
+        $individualMetadataModel = new IndividualMetadataModel();
+        $metadata = $individualMetadataModel
+            ->where('individual_id', $individual['id'])
+            ->first();
+
+        if (is_null($metadata)) {
+            log_message('critical', 'Individual "{id}"\'s metadata not found.', $individual);
+
+            return $this->response
+                ->setJSON(['error' => 'Something went wrong.'])
+                ->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+        }
+
+        if ($metadata['mp'] < $spell['mana']) {
+            return $this->response
+                ->setJSON(['error' => 'Insufficient mana to release spell.'])
+                ->setStatusCode(ResponseInterface::HTTP_BAD_REQUEST);
+        }
+
+        $metadata['mp'] -= $spell['mana'];
+
+        try {
+            $individualMetadataModel->update($metadata['id'], $metadata);
+        } catch (Exception $e) {
+            return $this->response
+                ->setJSON(['error' => $e->getMessage()])
+                ->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+        }
+
+        return $this->response
+            ->setJSON(['code' => $spell['code']]);
     }
 }
