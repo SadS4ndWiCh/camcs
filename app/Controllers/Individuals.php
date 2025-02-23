@@ -6,10 +6,8 @@ use App\Controllers\BaseController;
 use App\Models\IndividualHasSpellsModel;
 use App\Models\IndividualMetadataModel;
 use App\Models\SpellModel;
-use CodeIgniter\HTTP\Response;
 use CodeIgniter\HTTP\ResponseInterface;
 use Exception;
-use PHPUnit\Framework\ExpectationFailedException;
 
 class Individuals extends BaseController
 {
@@ -17,10 +15,9 @@ class Individuals extends BaseController
     {
         $individual = $this->getAuthenticated();
         if (is_null($individual)) {
-            return $this->getResponse(
-                ['error' => 'Unauthorized'],
-                ResponseInterface::HTTP_UNAUTHORIZED
-            );
+            return $this->response
+                ->setJSON(['error' => 'Unauthorized'])
+                ->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED);
         }
 
         $metadataModel = new IndividualMetadataModel();
@@ -37,17 +34,16 @@ class Individuals extends BaseController
             'metadata' => $metadata
         ];
 
-        return $this->getResponse($profile);
+        return $this->response->setJSON($profile);
     }
 
     public function pray()
     {
         $individual = $this->getAuthenticated();
         if (is_null($individual)) {
-            return $this->getResponse(
-                ['error' => 'Unauthorized'],
-                ResponseInterface::HTTP_UNAUTHORIZED
-            );
+            return $this->response
+                ->setJSON(['error' => 'Unauthorized'])
+                ->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED);
         }
 
         /*
@@ -70,10 +66,9 @@ class Individuals extends BaseController
 
         $data = $this->getRequestData();
         if (!$this->validateData($data, $rules)) {
-            return $this->getResponse(
-                ['error' => $this->validator->getErrors()],
-                ResponseInterface::HTTP_BAD_REQUEST
-            );
+            return $this->response
+                ->setJSON(['error' => $this->validator->getErrors()])
+                ->setStatusCode(ResponseInterface::HTTP_BAD_REQUEST);
         }
 
         $individualMetadataModel = new IndividualMetadataModel();
@@ -82,10 +77,9 @@ class Individuals extends BaseController
             ->first();
 
         if (is_null($metadata)) {
-            return $this->getResponse(
-                ['error', 'Individual\'s metadata was not found.'],
-                ResponseInterface::HTTP_INTERNAL_SERVER_ERROR
-            );
+            return $this->response
+                ->setJSON(['error', 'Individual\'s metadata was not found.'])
+                ->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
         }
 
         $pray = $data['pray'];
@@ -114,7 +108,7 @@ class Individuals extends BaseController
 
         if ($totalGods == 0) {
             // How can a person don't mention god in their prey?
-            return $this->getResponse(['message' => 'Pray successfuly completed.']);
+            return $this->response->setJSON(['message' => 'Pray successfuly completed.']);
         }
 
         $totalSPToReceive = 0;
@@ -148,7 +142,7 @@ class Individuals extends BaseController
         $metadata['sp'] += $totalSPToReceive;
         $individualMetadataModel->update($metadata['id'], $metadata);
 
-        return $this->getResponse(['message' => 'Pray successfuly completed.']);
+        return $this->response->setJSON(['message' => 'Pray successfuly completed.']);
     }
 
     public function releaseSpell($spellId)

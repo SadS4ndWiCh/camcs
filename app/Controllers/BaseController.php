@@ -67,13 +67,6 @@ abstract class BaseController extends Controller
         return $data;
     }
 
-    public function getResponse($data, int $code = ResponseInterface::HTTP_OK)
-    {
-        return $this->response
-            ->setJSON($data)
-            ->setStatusCode($code);
-    }
-
     public function getAuthenticated()
     {
         $authenticationHeader = $this->request->getServer('HTTP_AUTHORIZATION');

@@ -20,10 +20,9 @@ class Auth extends BaseController
 
         $data = $this->getRequestData();
         if (!$this->validateData($data, $rules)) {
-            return $this->getResponse(
-                ['error' => $this->validator->getErrors()],
-                ResponseInterface::HTTP_BAD_REQUEST
-            );
+            return $this->response
+                ->setJSON(['error' => $this->validator->getErrors()])
+                ->setStatusCode(ResponseInterface::HTTP_BAD_REQUEST);
         }
 
         log_message('info', 'The "{name}" started a ceremony.', $data);
@@ -67,10 +66,9 @@ class Auth extends BaseController
             log_message('critital', 'Failed to create metadata for "{name}".', $data);
             $db->transRollback();
 
-            return $this->getResponse(
-                ['error' => $db->error()],
-                ResponseInterface::HTTP_INTERNAL_SERVER_ERROR
-            );
+            return $this->response
+                ->setJSON(['error' => $db->error()])
+                ->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
         }
 
         $db->transComplete();
@@ -82,14 +80,13 @@ class Auth extends BaseController
         $individual = $individualModel->find($individualId);
         unset($individual['code']);
 
-        return $this->getResponse(
-            [
+        return $this->response
+            ->setJSON([
                 'message'      => 'Ceremony successfuly completed.',
                 'individual'   => $individual,
                 'access_token' => $token
-            ],
-            ResponseInterface::HTTP_CREATED
-        );
+            ])
+            ->setStatusCode(ResponseInterface::HTTP_CREATED);
     }
 
     public function login()
@@ -101,20 +98,18 @@ class Auth extends BaseController
 
         $data = $this->getRequestData();
         if (!$this->validateData($data, $rules)) {
-            return $this->getResponse(
-                ['error' => $this->validator->getErrors()],
-                ResponseInterface::HTTP_BAD_REQUEST
-            );
+            return $this->response
+                ->setJSON(['error' => $this->validator->getErrors()])
+                ->setStatusCode(ResponseInterface::HTTP_BAD_REQUEST);
         }
 
         $individualModel = new IndividualModel();
         $individual = $individualModel->where('soul', $data['soul'])->first();
 
         if (is_null($individual)) {
-            return $this->getResponse(
-                ['error' => 'Individual with given soul not found.'],
-                ResponseInterface::HTTP_BAD_REQUEST
-            );
+            return $this->response
+                ->setJSON(['error' => 'Individual with given soul not found.'])
+                ->setStatusCode(ResponseInterface::HTTP_BAD_REQUEST);
         }
 
         helper('jwt');
@@ -122,7 +117,7 @@ class Auth extends BaseController
         $token = JWT_signTokenFor($individual['id']);
         unset($individual['code']);
 
-        return $this->getResponse([
+        return $this->response->setJSON([
             'message'      => 'Successfuly logged.',
             'individual'   => $individual,
             'access_token' => $token
