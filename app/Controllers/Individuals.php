@@ -54,7 +54,7 @@ class Individuals extends BaseController
 
         if (!$throttler->check($throttlerId, 1, MINUTE * 30)) {
             return $this->response
-                ->setHeader('X-RateLimit-Reset', $throttler->getTokenTime() * 1000)
+                ->setHeader('RateLimit-Reset', $throttler->getTokenTime())
                 ->setJSON(['error' => 'Individual can only pray once every 30 minutes.'])
                 ->setStatusCode(ResponseInterface::HTTP_TOO_MANY_REQUESTS);
         }

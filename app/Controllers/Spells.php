@@ -23,7 +23,7 @@ class Spells extends BaseController
 
             if (!$throttler->check($throttlerId, 1, SECOND * 10)) {
                 return $this->response
-                    ->setHeader('X-RateLimit-Reset', $throttler->getTokenTime())
+                    ->setHeader('RateLimit-Reset', $throttler->getTokenTime())
                     ->setJSON(['error' => 'You must be logged to don\'t be affected by this limit.'])
                     ->setStatusCode(ResponseInterface::HTTP_TOO_MANY_REQUESTS);
             }
