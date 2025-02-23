@@ -108,8 +108,14 @@ class Auth extends BaseController
 
         if (is_null($individual)) {
             return $this->response
-                ->setJSON(['error' => 'Individual with given soul not found.'])
-                ->setStatusCode(ResponseInterface::HTTP_BAD_REQUEST);
+                ->setJSON(['error' => 'Individual\'s soul or code is invalid.'])
+                ->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED);
+        }
+
+        if (!password_verify($data['code'], $individual['code'])) {
+            return $this->response
+                ->setJSON(['error' => 'Individual\'s soul or code is invalid.'])
+                ->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED);
         }
 
         helper('jwt');
