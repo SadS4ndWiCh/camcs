@@ -3,9 +3,9 @@
 namespace App\Controllers;
 
 use App\Controllers\BaseController;
+use App\Enums\InsigniaTypes;
 use App\Models\IndividualMetadataModel;
 use App\Models\IndividualModel;
-use App\Models\InsigniaTypes;
 use CodeIgniter\HTTP\ResponseInterface;
 
 class Auth extends BaseController
@@ -30,8 +30,8 @@ class Auth extends BaseController
         $individualModel = new IndividualModel();
 
         // The logic to choose the insignia should be inside class `beforeInsert`.
-        $choosedIdx = random_int(0, count($individualModel::$INSIGNIAS) - 1);
-        $data['insignia'] = $choosedIdx;
+        // $choosedIdx = random_int(0, count($individualModel::$INSIGNIAS) - 1);
+        $data['insignia'] = InsigniaTypes::random_key();
 
         log_message('info', 'The "{name}" receives the insignia "{insignia}".', $data);
 
@@ -54,11 +54,14 @@ class Auth extends BaseController
         ];
 
         // The insignia `DARKNESS` and `LIGHT` are specials
-        $insignia = $individualModel::$INSIGNIAS[$choosedIdx];
-        if ($insignia == InsigniaTypes::DARKNESS || $insignia == InsigniaTypes::LIGHT) {
-            $metadata['sp'] = 20;
-            $metadata['mp'] = 200;
-            $metadata['max_mp'] = 200;
+        $insignia = InsigniaTypes::from_key($data['insignia']);
+        switch ($insignia) {
+            case InsigniaTypes::DARKNESS:
+            case InsigniaTypes::LIGHT:
+                $metadata['sp'] = 20;
+                $metadata['mp'] = 200;
+                $metadata['max_mp'] = 200;
+                break;
         }
 
         $metadataModel = new IndividualMetadataModel();
@@ -79,6 +82,7 @@ class Auth extends BaseController
 
         $individual = $individualModel->find($individualId);
         unset($individual['code']);
+        $individual['insignia'] = $insignia->label();
 
         return $this->response
             ->setJSON([
@@ -122,6 +126,7 @@ class Auth extends BaseController
 
         $token = JWT_signTokenFor($individual['id']);
         unset($individual['code']);
+        $individual['insignia'] = InsigniaTypes::from_key($individual['insignia'])->label();
 
         return $this->response->setJSON([
             'message'      => 'Successfuly logged.',

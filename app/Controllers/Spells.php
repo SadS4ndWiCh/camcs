@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Controllers\BaseController;
+use App\Enums\InsigniaTypes;
 use App\Models\IndividualHasSpellsModel;
 use App\Models\IndividualMetadataModel;
 use App\Models\IndividualModel;
@@ -51,6 +52,8 @@ class Spells extends BaseController
 
                 $spells[$i]['learned'] = !is_null($spell);
             }
+
+            $spells[$i]['type'] = InsigniaTypes::from_key($spells[$i]['type'])->label();
         }
 
         return $this->response->setJSON($spells);
