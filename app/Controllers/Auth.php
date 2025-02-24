@@ -30,7 +30,6 @@ class Auth extends BaseController
         $individualModel = new IndividualModel();
 
         // The logic to choose the insignia should be inside class `beforeInsert`.
-        // $choosedIdx = random_int(0, count($individualModel::$INSIGNIAS) - 1);
         $data['insignia'] = InsigniaTypes::random_key();
 
         log_message('info', 'The "{name}" receives the insignia "{insignia}".', $data);
@@ -44,25 +43,22 @@ class Auth extends BaseController
         $individualId = $individualModel->insert($data);
         log_message('info', 'The "{name}" was included in database.', $data);
 
-        $metadata = [
-            'individual_id' => $individualId,
-            'sp'            => 10,
-            'mp'            => 100,
-            'max_mp'        => 100,
-            'xp'            => 0,
-            'level'         => 0
-        ];
-
-        // The insignia `DARKNESS` and `LIGHT` are specials
+        // Insignias can have different benefits.
         $insignia = InsigniaTypes::from_key($data['insignia']);
-        switch ($insignia) {
-            case InsigniaTypes::DARKNESS:
-            case InsigniaTypes::LIGHT:
-                $metadata['sp'] = 20;
-                $metadata['mp'] = 200;
-                $metadata['max_mp'] = 200;
-                break;
-        }
+        $metadata = match ($insignia) {
+            InsigniaTypes::DARKNESS, InsigniaTypes::LIGHT => [
+                'individual_id' => $individualId,
+                'sp'            => 20,
+                'mp'            => 200,
+                'max_mp'        => 200,
+            ],
+            default => [
+                'individual_id' => $individualId,
+                'sp'            => 10,
+                'mp'            => 100,
+                'max_mp'        => 100,
+            ]
+        };
 
         $metadataModel = new IndividualMetadataModel();
         if (!$metadataModel->insert($metadata)) {
