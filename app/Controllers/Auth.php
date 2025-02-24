@@ -82,7 +82,6 @@ class Auth extends BaseController
 
         $individual = $individualModel->find($individualId);
         unset($individual['code']);
-        $individual['insignia'] = $insignia->label();
 
         return $this->response
             ->setJSON([
@@ -126,7 +125,6 @@ class Auth extends BaseController
 
         $token = JWT_signTokenFor($individual['id']);
         unset($individual['code']);
-        $individual['insignia'] = InsigniaTypes::from_key($individual['insignia'])->label();
 
         return $this->response->setJSON([
             'message'      => 'Successfuly logged.',

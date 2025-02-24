@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\InsigniaTypes;
 use CodeIgniter\Model;
 
 class IndividualModel extends Model
@@ -40,7 +41,7 @@ class IndividualModel extends Model
     protected $beforeUpdate   = ['beforeUpdate'];
     protected $afterUpdate    = [];
     protected $beforeFind     = [];
-    protected $afterFind      = [];
+    protected $afterFind      = ['afterFind'];
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
 
@@ -52,6 +53,15 @@ class IndividualModel extends Model
     protected function beforeUpdate($data)
     {
         return $this->encryptUpdatedCode($data);
+    }
+
+    protected function afterFind(array $data)
+    {
+        if (isset($data['data']['insignia'])) {
+            $data['data']['insignia'] = InsigniaTypes::from_key($data['data']['insignia'])->label();
+        }
+
+        return $data;
     }
 
     private function encryptUpdatedCode(array $data): array
