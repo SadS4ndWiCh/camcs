@@ -4,27 +4,8 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-enum InsigniaTypes
-{
-    case WATER;
-    case FIRE;
-    case EARTH;
-    case AIR;
-    case DARKNESS;
-    case LIGHT;
-}
-
 class IndividualModel extends Model
 {
-    static public array $INSIGNIAS = [
-        InsigniaTypes::WATER,
-        InsigniaTypes::FIRE,
-        InsigniaTypes::EARTH,
-        InsigniaTypes::AIR,
-        InsigniaTypes::DARKNESS,
-        InsigniaTypes::LIGHT,
-    ];
-
     protected $table            = 'individuals';
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
