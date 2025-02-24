@@ -30,8 +30,8 @@ class AddIndividualsHasAchievements extends Migration
         $this->forge
             ->addField($fields)
             ->addPrimaryKey(['individual_id', 'spell_id'], 'id')
-            ->addForeignKey('individual_id', 'individuals', 'id')
-            ->addForeignKey('achievement_id', 'achievements', 'id')
+            ->addForeignKey('individual_id', 'individuals', 'id', '', 'CASCADE')
+            ->addForeignKey('achievement_id', 'achievements', 'id', '', 'CASCADE')
             ->createTable('individuals_has_achievements');
     }
 
