@@ -2,6 +2,7 @@
 
 namespace Config;
 
+use App\Services\PrayService;
 use CodeIgniter\Config\BaseService;
 
 /**
@@ -29,6 +30,15 @@ class Services extends BaseService
      *     return new \CodeIgniter\Example();
      * }
      */
+
+    public static function pray($getShared = true): PrayService
+    {
+        if ($getShared) {
+            return static::getSharedInstance('pray');
+        }
+
+        return new PrayService();
+    }
 
     public static function getJWTSecretKey()
     {

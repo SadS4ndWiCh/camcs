@@ -22,16 +22,14 @@ class Individuals extends BaseController
         }
 
         $individualModel = new IndividualModel();
-        $metadata = $individualModel->getMetadataFromId($individual['id']);
+        $profile = $individualModel->profile($individual['id']);
 
-        if (is_null($metadata)) {
-            log_message('warning', 'The metadata from "{id}" was not found.', $individual);
+        if (is_null($profile)) {
+            log_message('critical', 'Failed to fetch profile from "{id}"', $individual);
+            return $this->response
+                ->setJSON(['error' => 'Something went wrong. You is really you?'])
+                ->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
         }
-
-        $profile = [
-            'individual' => $individual,
-            'metadata' => $metadata
-        ];
 
         return $this->response->setJSON($profile);
     }
@@ -60,7 +58,7 @@ class Individuals extends BaseController
         }
 
         $rules = [
-            'pray' => 'required|min_length[1]|max_length[1024]'
+            'prayer' => 'required|min_length[1]|max_length[1024]'
         ];
 
         $data = $this->getRequestData();
@@ -70,76 +68,14 @@ class Individuals extends BaseController
                 ->setStatusCode(ResponseInterface::HTTP_BAD_REQUEST);
         }
 
-        $individualModel = new IndividualModel();
-        $metadata = $individualModel->getMetadataFromId($individual['id']);
+        $prayer = $data['prayer'];
 
-        if (is_null($metadata)) {
+        $individualModel = new IndividualModel();
+        if (!$individualModel->pray($individual, $prayer)) {
             return $this->response
-                ->setJSON(['error', 'Individual\'s metadata was not found.'])
+                ->setJSON(['error' => 'Failed to complete pray. Are you really trying?'])
                 ->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
         }
-
-        $pray = $data['pray'];
-        /*
-            The logic how the pray is analyzed:
-            1. How long the pray is.
-            2. How many words contains.
-            3. How many time 'god' was mentioned.
-        */
-
-        $prayLength = strlen($pray);
-
-        $words = explode(' ', str_replace(',', ' ', strtolower($pray)));
-        $totalWords = count($words);
-
-        $totalGods = 0;
-        foreach ($words as $word) {
-            if ($word == 'god') {
-                $totalGods++;
-            }
-        }
-
-        // Some comparations
-        $presenceOfGodInPray = $totalGods / $totalWords;
-        $prayLengthFromTheMaximum = $prayLength / 1024;
-
-        if ($totalGods == 0) {
-            // How can a person don't mention god in their prey?
-            return $this->response->setJSON(['message' => 'Pray successfuly completed.']);
-        }
-
-        $totalSPToReceive = 0;
-
-        /*
-            To give more attraction from gods, is valuable to say their name 
-            during pray. That way, they can feel more gratitude from you.
-
-            But, saying very frequently in the pray, like around 40% to 70% of 
-            the pray don't fit very well. So, to not to encourage that, only 1 SP
-            is gain with that.
-        */
-        if ($presenceOfGodInPray < 0.6) {
-            $totalSPToReceive += max(1, $totalGods * 0.15);
-        } else if ($presenceOfGodInPray >= 0.4 && $presenceOfGodInPray <= 0.7) {
-            $totalSPToReceive += 1;
-        }
-
-        /*
-            A person that gives more attention to their prey, giving a more long 
-            pray, can receive more acknowledgement from gods.
-        */
-        $totalSPToReceive += 10 * $prayLengthFromTheMaximum;
-
-        // People with DARKNESS and LIGHT insignias receives a special point.
-        $insignia = $individual['insignia'];
-        if ($insignia == 4 || $individual == 5) {
-            $totalSPToReceive += 1;
-        }
-
-        $metadata['sp'] += $totalSPToReceive;
-
-        $individualMetadataModel = new IndividualMetadataModel();
-        $individualMetadataModel->update($metadata['id'], $metadata);
 
         return $this->response->setJSON(['message' => 'Pray successfuly completed.']);
     }

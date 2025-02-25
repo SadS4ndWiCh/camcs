@@ -43,4 +43,14 @@ class IndividualHasSpellsModel extends Model
     protected $afterFind      = [];
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
+
+    public function isIndividualHasSpell($individualId, $spellId)
+    {
+        $individualHasSpell = $this
+            ->where('individual_id', $individualId)
+            ->where('spell_id', $spellId)
+            ->first();
+
+        return !is_null($individualHasSpell);
+    }
 }

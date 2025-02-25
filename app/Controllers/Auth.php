@@ -4,7 +4,6 @@ namespace App\Controllers;
 
 use App\Controllers\BaseController;
 use App\Enums\InsigniaTypes;
-use App\Models\IndividualMetadataModel;
 use App\Models\IndividualModel;
 use CodeIgniter\HTTP\ResponseInterface;
 
@@ -25,64 +24,22 @@ class Auth extends BaseController
                 ->setStatusCode(ResponseInterface::HTTP_BAD_REQUEST);
         }
 
-        log_message('info', 'The "{name}" started a ceremony.', $data);
-
-        $individualModel = new IndividualModel();
-
-        // The logic to choose the insignia should be inside class `beforeInsert`.
         $data['insignia'] = InsigniaTypes::random_key();
 
-        log_message('info', 'The "{name}" receives the insignia "{insignia}".', $data);
-
-        // Starting a transaction to rollback if some error occour, because 
-        // ceremony needs to create both `individual` and `individual metadata` 
-        // entries.
-        $db = db_connect();
-        $db->transStart();
-
-        $individualId = $individualModel->insert($data);
-        log_message('info', 'The "{name}" was included in database.', $data);
-
-        // Insignias can have different benefits.
-        $insignia = InsigniaTypes::from_key($data['insignia']);
-        $metadata = match ($insignia) {
-            InsigniaTypes::DARKNESS, InsigniaTypes::LIGHT => [
-                'individual_id' => $individualId,
-                'sp'            => 20,
-                'mp'            => 200,
-                'max_mp'        => 200,
-            ],
-            default => [
-                'individual_id' => $individualId,
-                'sp'            => 10,
-                'mp'            => 100,
-                'max_mp'        => 100,
-            ]
-        };
-
-        $metadataModel = new IndividualMetadataModel();
-        if (!$metadataModel->insert($metadata)) {
-            log_message('critital', 'Failed to create metadata for "{name}".', $data);
-            $db->transRollback();
-
+        $individualModel = new IndividualModel();
+        $individualId = $individualModel->ceremony($data);
+        if (is_null($individualId)) {
             return $this->response
-                ->setJSON(['error' => $db->error()])
+                ->setJSON(['error' => 'Failed to complete ceremony. Maybe you didn\'t put in enough effort?'])
                 ->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
         }
-
-        $db->transComplete();
-        log_message('info', 'The "{name}" ceremory completes successfuly.', $data);
 
         helper('jwt');
         $token = JWT_signTokenFor($individualId);
 
-        $individual = $individualModel->find($individualId);
-        unset($individual['code']);
-
         return $this->response
             ->setJSON([
                 'message'      => 'Ceremony successfuly completed.',
-                'individual'   => $individual,
                 'access_token' => $token
             ])
             ->setStatusCode(ResponseInterface::HTTP_CREATED);
@@ -102,29 +59,20 @@ class Auth extends BaseController
                 ->setStatusCode(ResponseInterface::HTTP_BAD_REQUEST);
         }
 
+
         $individualModel = new IndividualModel();
-        $individual = $individualModel->where('soul', $data['soul'])->first();
-
-        if (is_null($individual)) {
-            return $this->response
-                ->setJSON(['error' => 'Individual\'s soul or code is invalid.'])
-                ->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED);
-        }
-
-        if (!password_verify($data['code'], $individual['code'])) {
+        $individualId = $individualModel->login($data);
+        if (is_null($individualId)) {
             return $this->response
                 ->setJSON(['error' => 'Individual\'s soul or code is invalid.'])
                 ->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED);
         }
 
         helper('jwt');
-
-        $token = JWT_signTokenFor($individual['id']);
-        unset($individual['code']);
+        $token = JWT_signTokenFor($individualId);
 
         return $this->response->setJSON([
             'message'      => 'Successfuly logged.',
-            'individual'   => $individual,
             'access_token' => $token
         ]);
     }
