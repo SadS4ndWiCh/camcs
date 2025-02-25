@@ -57,16 +57,6 @@ abstract class BaseController extends Controller
         // E.g.: $this->session = service('session');
     }
 
-    public function getRequestData()
-    {
-        $data = $this->request->getPost();
-        if (empty($data)) {
-            $data = json_decode($this->request->getBody(), true);
-        }
-
-        return $data;
-    }
-
     public function getAuthenticated()
     {
         $authenticationHeader = $this->request->getServer('HTTP_AUTHORIZATION');

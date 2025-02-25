@@ -61,7 +61,7 @@ class Individuals extends BaseController
             'prayer' => 'required|min_length[1]|max_length[1024]'
         ];
 
-        $data = $this->getRequestData();
+        $data = $this->request->getJSON(true);
         if (!$this->validateData($data, $rules)) {
             return $this->response
                 ->setJSON(['error' => $this->validator->getErrors()])

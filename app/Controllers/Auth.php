@@ -17,7 +17,7 @@ class Auth extends BaseController
             'code' => 'required|min_length[6]|max_length[255]'
         ];
 
-        $data = $this->getRequestData();
+        $data = $this->request->getJSON(true);
         if (!$this->validateData($data, $rules)) {
             return $this->response
                 ->setJSON(['error' => $this->validator->getErrors()])
@@ -52,7 +52,7 @@ class Auth extends BaseController
             'code' => 'required|min_length[6]|max_length[255]'
         ];
 
-        $data = $this->getRequestData();
+        $data = $this->request->getJSON(true);
         if (!$this->validateData($data, $rules)) {
             return $this->response
                 ->setJSON(['error' => $this->validator->getErrors()])
