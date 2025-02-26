@@ -11,15 +11,15 @@ the use of *magic* by the individual.
 
 ## 🛝 Summary
 
-1. [What can individual do?](#🧊-what-can-individual-do)
+1. [What can individual do?](#-what-can-individual-do)
     1. [Registration Ceremony](#registration-ceremony)
     2. [Pray](#pray)
     3. [Achievement](#achievements)
     4. [Learn Spells](#learn-spells)
     5. [Release Spells](#release-spells)
-2. [How it was possible?](#🎀-how-it-was-possible)
-3. [Steps of each process](#🪭-steps-of-each-process)
-    1. [How the system is structured?](#🍂-how-the-system-is-structured)
+2. [How it was possible?](#-how-it-was-possible)
+3. [Steps of each process](#-steps-of-each-process)
+    1. [How the system is structured?](#-how-the-system-is-structured)
         1. [Ceremony Use Case](#ceremony-use-case)
         2. [Pray Use Case](#pray-use-case)
         3. [Learn Spell Use Case](#learn-spells-use-case)
@@ -31,7 +31,7 @@ the use of *magic* by the individual.
         4. [Pray](#pray-1)
         5. [List Spells](#list-spells)
         6. [Learn Spell](#learn-spell)
-    3. [Database](#🧶-database)
+    3. [Database](#-database)
 
 ## 🧊 What can individual do?
 
