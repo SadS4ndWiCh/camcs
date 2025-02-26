@@ -9,9 +9,29 @@ A global system to support the individual in the control of *Arcane Magic*. Mana
 the control of *mana* and mediates communication with the gods in order to facilitate 
 the use of *magic* by the individual.
 
-> [!IMPORTANT]
-> Due to the magic invocation process being mediated by the system, the number of 
-> available spells is limited, with no freedom to explore the creation of new spells.
+## 🛝 Summary
+
+1. [What can individual do?](#🧊-what-can-individual-do)
+    1. [Registration Ceremony](#registration-ceremony)
+    2. [Pray](#pray)
+    3. [Achievement](#achievements)
+    4. [Learn Spells](#learn-spells)
+    5. [Release Spells](#release-spells)
+2. [How it was possible?](#🎀-how-it-was-possible)
+3. [Steps of each process](#🪭-steps-of-each-process)
+    1. [How the system is structured?](#🍂-how-the-system-is-structured)
+        1. [Ceremony Use Case](#ceremony-use-case)
+        2. [Pray Use Case](#pray-use-case)
+        3. [Learn Spell Use Case](#learn-spells-use-case)
+        4. [Release Spell Use Case](#release-spell-use-case)
+    2. [Endpoints](#💍-endpoints)
+        1. [Ceremony](#ceremony)
+        2. [Login](#login)
+        3. [Profile](#profile)
+        4. [Pray](#pray-1)
+        5. [List Spells](#list-spells)
+        6. [Learn Spell](#learn-spell)
+    3. [Database](#🧶-database)
 
 ## 🧊 What can individual do?
 
