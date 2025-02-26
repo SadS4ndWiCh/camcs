@@ -67,11 +67,7 @@ class Individuals extends BaseController
         $prayer = $data['prayer'];
 
         $individualModel = new IndividualModel();
-        if (!$individualModel->pray($individual, $prayer)) {
-            return $this->response
-                ->setJSON(['error' => 'Failed to complete pray. Are you really trying?'])
-                ->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
-        }
+        $individualModel->pray($individual, $prayer);
 
         return $this->response->setJSON(['message' => 'Pray successfuly completed.']);
     }

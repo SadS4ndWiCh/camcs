@@ -28,11 +28,6 @@ class Auth extends BaseController
 
         $individualModel = new IndividualModel();
         $individualId = $individualModel->ceremony($data);
-        if (is_null($individualId)) {
-            return $this->response
-                ->setJSON(['error' => 'Failed to complete ceremony. Maybe you didn\'t put in enough effort?'])
-                ->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
-        }
 
         helper('jwt');
         $token = JWT_signTokenFor($individualId);
@@ -62,11 +57,6 @@ class Auth extends BaseController
 
         $individualModel = new IndividualModel();
         $individualId = $individualModel->login($data);
-        if (is_null($individualId)) {
-            return $this->response
-                ->setJSON(['error' => 'Individual\'s soul or code is invalid.'])
-                ->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED);
-        }
 
         helper('jwt');
         $token = JWT_signTokenFor($individualId);

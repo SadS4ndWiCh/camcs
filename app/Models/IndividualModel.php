@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use App\Enums\InsigniaTypes;
-use App\Exceptions\IndividualDoesNotHaveSpellException;
 use CodeIgniter\HTTP\ResponseInterface;
 use CodeIgniter\Model;
 use Config\Services;
@@ -87,7 +86,10 @@ class IndividualModel extends Model
                 'message' => $e->getMessage()
             ]);
 
-            return null;
+            throw new Exception(
+                'The ceremony wasn\'t able to even start. Maybe you already have an insignia?',
+                ResponseInterface::HTTP_INTERNAL_SERVER_ERROR
+            );
         }
 
         $insignia = InsigniaTypes::from_key($individual['insignia']);
@@ -116,7 +118,10 @@ class IndividualModel extends Model
                 'message' => $e->getMessage()
             ]);
 
-            return null;
+            throw new Exception(
+                'Maybe the gods don\'t like you. The ceremony was almost complete. You can try again.',
+                ResponseInterface::HTTP_INTERNAL_SERVER_ERROR
+            );
         }
 
         $db->transComplete();
@@ -130,11 +135,17 @@ class IndividualModel extends Model
             ->first();
 
         if (is_null($individual)) {
-            return null;
+            throw new Exception(
+                'Individual\'s soul or code is invalid.',
+                ResponseInterface::HTTP_UNAUTHORIZED
+            );
         }
 
         if (!password_verify($credentials['code'], $individual['code'])) {
-            return null;
+            throw new Exception(
+                'Individual\'s soul or code is invalid.',
+                ResponseInterface::HTTP_UNAUTHORIZED
+            );
         }
 
         return $individual['id'];
@@ -144,7 +155,10 @@ class IndividualModel extends Model
     {
         $individual = $this->find($individualId);
         if (is_null($individual)) {
-            return null;
+            throw new Exception(
+                'That individual don\'t exists. Be sure if the ID is correct.',
+                ResponseInterface::HTTP_NOT_FOUND
+            );
         }
 
         $individualMetadataModel = new IndividualMetadataModel();
@@ -153,7 +167,14 @@ class IndividualModel extends Model
             ->first();
 
         if (is_null($metadata)) {
-            return null;
+            log_message('critical', 'Individual "{id}"\'s metadata not found.', [
+                'id' => $individual['id']
+            ]);
+
+            throw new Exception(
+                'The system wasn\'t able to grab your metadata.',
+                ResponseInterface::HTTP_INTERNAL_SERVER_ERROR
+            );
         }
 
         // Omit sensive data
@@ -171,7 +192,14 @@ class IndividualModel extends Model
     {
         $metadata = $this->getMetadataFromId($individual['id']);
         if (is_null($metadata)) {
-            return false;
+            log_message('critical', 'Individual "{id}"\'s metadata not found.', [
+                'id' => $individual['id']
+            ]);
+
+            throw new Exception(
+                'The system wasn\'t able to grab your metadata.',
+                ResponseInterface::HTTP_INTERNAL_SERVER_ERROR
+            );
         }
 
         $insignia = InsigniaTypes::from_key($individual['insignia']);
@@ -189,7 +217,10 @@ class IndividualModel extends Model
                 'message' => $e->getMessage(),
             ]);
 
-            return false;
+            throw new Exception(
+                'Something went wrong during the prayer. Do the prayer from deep in your heart.',
+                ResponseInterface::HTTP_INTERNAL_SERVER_ERROR
+            );
         }
 
         return true;
@@ -200,25 +231,44 @@ class IndividualModel extends Model
         $spellModel = new SpellModel();
         $spell = $spellModel->find($spellId);
         if (is_null($spell)) {
-            return false;
+            throw new Exception(
+                'You are trying to learn a spell that even exists. Take it seriously.',
+                ResponseInterface::HTTP_NOT_FOUND
+            );
         }
 
         $individualHasSpellsModel = new IndividualHasSpellsModel();
-        if (!$individualHasSpellsModel->isIndividualHasSpell($individual['id'], $spellId)) {
-            return false;
+        if ($individualHasSpellsModel->isIndividualHasSpell($individual['id'], $spellId)) {
+            throw new Exception(
+                'You already learned this spell. Why are you trying to learn again?',
+                ResponseInterface::HTTP_BAD_REQUEST
+            );
         }
 
         if (!$spellModel->isSpellAvailableToIndividualLearn($spell, $individual)) {
-            return false;
+            throw new Exception(
+                'You cannot learn this spell. Try to learn another that matches your insignia.',
+                ResponseInterface::HTTP_BAD_REQUEST
+            );
         }
 
         $metadata = $this->getMetadataFromId($individual['id']);
         if (is_null($metadata)) {
-            return false;
+            log_message('critical', 'Individual "{id}"\'s metadata not found.', [
+                'id' => $individual['id']
+            ]);
+
+            throw new Exception(
+                'The system wasn\'t able to grab your metadata.',
+                ResponseInterface::HTTP_INTERNAL_SERVER_ERROR
+            );
         }
 
         if ($metadata['sp'] < $spell['price']) {
-            return false;
+            throw new Exception(
+                'You lack points. Get some job or pray to the gods.',
+                ResponseInterface::HTTP_BAD_REQUEST
+            );
         }
 
         $metadata['sp'] -= $spell['price'];
@@ -242,11 +292,13 @@ class IndividualModel extends Model
                 'message'      => $e->getMessage()
             ]);
 
-            return false;
+            throw new Exception(
+                'Something went wrong in the learning process. You could try again.',
+                ResponseInterface::HTTP_INTERNAL_SERVER_ERROR
+            );
         }
 
         $db->transComplete();
-        return true;
     }
 
     public function releaseSpell($individualId, $spellId)

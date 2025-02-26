@@ -24,13 +24,19 @@ class AuthenticationFilter implements FilterInterface
 
         if (is_null($token)) {
             return Services::response()
-                ->setJSON(['error' => 'Missing authentication token.'])
+                ->setJSON([
+                    'code'  => ResponseInterface::HTTP_UNAUTHORIZED,
+                    'error' => 'Missing authentication token.'
+                ])
                 ->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED);
         }
 
         if (is_null(JWT_validateToken($token))) {
             return Services::response()
-                ->setJSON(['error' => 'Invalid authentication token.'])
+                ->setJSON([
+                    'code'  => ResponseInterface::HTTP_UNAUTHORIZED,
+                    'error' => 'Invalid authentication token.'
+                ])
                 ->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED);
         }
 

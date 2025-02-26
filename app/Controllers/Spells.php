@@ -3,13 +3,9 @@
 namespace App\Controllers;
 
 use App\Controllers\BaseController;
-use App\Enums\InsigniaTypes;
-use App\Models\IndividualHasSpellsModel;
-use App\Models\IndividualMetadataModel;
 use App\Models\IndividualModel;
 use App\Models\SpellModel;
 use CodeIgniter\HTTP\ResponseInterface;
-use Exception;
 
 class Spells extends BaseController
 {
@@ -46,11 +42,7 @@ class Spells extends BaseController
         }
 
         $individualModel = new IndividualModel();
-        if (!$individualModel->learnSpell($individual, $spellId)) {
-            return $this->response
-                ->setJSON(['error' => 'Failed to learn spell.'])
-                ->setStatusCode(ResponseInterface::HTTP_BAD_REQUEST);
-        }
+        $individualModel->learnSpell($individual, $spellId);
 
         return $this->response
             ->setJSON(['message' => 'Spells learned successfuly.']);
