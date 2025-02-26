@@ -24,7 +24,7 @@ the use of *magic* by the individual.
         2. [Pray Use Case](#pray-use-case)
         3. [Learn Spell Use Case](#learn-spells-use-case)
         4. [Release Spell Use Case](#release-spell-use-case)
-    2. [Endpoints](#💍-endpoints)
+    2. [Endpoints](#-endpoints)
         1. [Ceremony](#ceremony)
         2. [Login](#login)
         3. [Profile](#profile)
