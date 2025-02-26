@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use App\Enums\InsigniaTypes;
+use App\Exceptions\IndividualDoesNotHaveSpellException;
+use CodeIgniter\HTTP\ResponseInterface;
 use CodeIgniter\Model;
 use Config\Services;
 use Exception;
@@ -245,6 +247,67 @@ class IndividualModel extends Model
 
         $db->transComplete();
         return true;
+    }
+
+    public function releaseSpell($individualId, $spellId)
+    {
+        $spellModel = new SpellModel();
+        $spell = $spellModel->find($spellId);
+
+        if (is_null($spell)) {
+            throw new Exception(
+                'You are trying to release a spell that even exists. Take it seriously.',
+                ResponseInterface::HTTP_BAD_REQUEST
+            );
+        }
+
+        $individualHasSpellsModel = new IndividualHasSpellsModel();
+        $individualSpell = $individualHasSpellsModel
+            ->where('individual_id', $individualId)
+            ->where('spell_id', $spellId)
+            ->first();
+
+        if (is_null($individualSpell)) {
+            throw new Exception(
+                'You don\'t have this spell to release. Learn it or consider releasing another one.',
+                ResponseInterface::HTTP_NOT_FOUND
+            );
+        }
+
+        $individualModel = new IndividualModel();
+        $metadata = $individualModel->getMetadataFromId($individualId);
+
+        if (is_null($metadata)) {
+            log_message('critical', 'Individual "{id}"\'s metadata not found.', [
+                'id' => $individualId
+            ]);
+
+            throw new Exception(
+                'The system wasn\'t able to grab your metadata.',
+                ResponseInterface::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
+
+        if ($metadata['mp'] < $spell['mana']) {
+            throw new Exception(
+                'You don\'t have mana enough to release this spell.',
+                ResponseInterface::HTTP_BAD_REQUEST
+            );
+        }
+
+        $metadata['mp'] -= $spell['mana'];
+
+        try {
+            $individualMetadataModel = new IndividualMetadataModel();
+            $individualMetadataModel->update($metadata['id'], $metadata);
+        } catch (Exception $e) {
+            throw new Exception(
+                "The spell has almost been cast. Try again.",
+                ResponseInterface::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
+
+        return $spell;
     }
 
     public function getMetadataFromId($individualId)

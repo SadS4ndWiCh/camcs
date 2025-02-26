@@ -3,12 +3,8 @@
 namespace App\Controllers;
 
 use App\Controllers\BaseController;
-use App\Models\IndividualHasSpellsModel;
-use App\Models\IndividualMetadataModel;
 use App\Models\IndividualModel;
-use App\Models\SpellModel;
 use CodeIgniter\HTTP\ResponseInterface;
-use Exception;
 
 class Individuals extends BaseController
 {
@@ -89,60 +85,10 @@ class Individuals extends BaseController
                 ->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED);
         }
 
-        $individualHasSpellsModel = new IndividualHasSpellsModel();
-        $individualSpell = $individualHasSpellsModel
-            ->where('individual_id', $individual['id'])
-            ->where('spell_id', $spellId)
-            ->first();
-
-        if (is_null($individualSpell)) {
-            return $this->response
-                ->setJSON(['error' => 'You don\'t have this spell.'])
-                ->setStatusCode(ResponseInterface::HTTP_NOT_FOUND);
-        }
-
-        $spellModel = new SpellModel();
-        $spell = $spellModel->find($spellId);
-
-        if (is_null($spell)) {
-            log_message('warning', 'Spell "{spellId}" was found in individual_has_spell but not in spells', [
-                'spellId' => $spellId
-            ]);
-
-            return $this->response
-                ->setJSON(['error' => 'Spell not found.'])
-                ->setStatusCode(ResponseInterface::HTTP_BAD_REQUEST);
-        }
-
         $individualModel = new IndividualModel();
-        $metadata = $individualModel->getMetadataFromId($individual['id']);
-
-        if (is_null($metadata)) {
-            log_message('critical', 'Individual "{id}"\'s metadata not found.', $individual);
-
-            return $this->response
-                ->setJSON(['error' => 'Something went wrong.'])
-                ->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
-        }
-
-        if ($metadata['mp'] < $spell['mana']) {
-            return $this->response
-                ->setJSON(['error' => 'Insufficient mana to release spell.'])
-                ->setStatusCode(ResponseInterface::HTTP_BAD_REQUEST);
-        }
-
-        $metadata['mp'] -= $spell['mana'];
-
-        try {
-            $individualMetadataModel = new IndividualMetadataModel();
-            $individualMetadataModel->update($metadata['id'], $metadata);
-        } catch (Exception $e) {
-            return $this->response
-                ->setJSON(['error' => $e->getMessage()])
-                ->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
-        }
+        $releasedSpell = $individualModel->releaseSpell($individual['id'], $spellId);
 
         return $this->response
-            ->setJSON(['code' => $spell['code']]);
+            ->setJSON(['code' => $releasedSpell['code']]);
     }
 }
