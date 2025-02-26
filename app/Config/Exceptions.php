@@ -2,8 +2,8 @@
 
 namespace Config;
 
+use App\Libraries\ExceptionHandler;
 use CodeIgniter\Config\BaseConfig;
-use CodeIgniter\Debug\ExceptionHandler;
 use CodeIgniter\Debug\ExceptionHandlerInterface;
 use Psr\Log\LogLevel;
 use Throwable;
@@ -33,7 +33,7 @@ class Exceptions extends BaseConfig
      *
      * @var list<int>
      */
-    public array $ignoreCodes = [404];
+    public array $ignoreCodes = [];
 
     /**
      * --------------------------------------------------------------------------
