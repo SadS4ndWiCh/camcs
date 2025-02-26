@@ -87,4 +87,20 @@ class Individuals extends BaseController
         return $this->response
             ->setJSON(['code' => $releasedSpell['code']]);
     }
+
+    public function meditate()
+    {
+        $individual = $this->getAuthenticated();
+        if (is_null($individual)) {
+            return $this->response
+                ->setJSON(['error' => 'Unauthorized'])
+                ->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED);
+        }
+
+        $individualModel = new IndividualModel();
+        $individualModel->meditate($individual);
+
+        return $this->response
+            ->setJSON(['message' => 'You\'ve successfuly meditate.']);
+    }
 }

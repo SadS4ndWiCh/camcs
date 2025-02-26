@@ -362,6 +362,34 @@ class IndividualModel extends Model
         return $spell;
     }
 
+    public function meditate($individual)
+    {
+        $metadata = $this->getMetadataFromId($individual['id']);
+        if (is_null($metadata)) {
+            log_message('critical', 'Individual "{id}"\'s metadata not found.', [
+                'id' => $individual['id']
+            ]);
+
+            throw new Exception(
+                'The system wasn\'t able to grab your metadata.',
+                ResponseInterface::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
+
+        $recover = max(5, $metadata['mp'] * 0.05) + rand(0, 5);
+        $metadata['mp'] += $recover;
+
+        try {
+            $individualMetadataModel = new IndividualMetadataModel();
+            $individualMetadataModel->update($metadata['id'], $metadata);
+        } catch (Exception $e) {
+            throw new Exception(
+                'You\'ve lost your focus.',
+                ResponseInterface::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
+    }
+
     public function getMetadataFromId($individualId)
     {
         $individualMetadataModel = new IndividualMetadataModel();

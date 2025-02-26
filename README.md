@@ -24,6 +24,7 @@ the use of *magic* by the individual.
         2. [Pray Use Case](#pray-use-case)
         3. [Learn Spell Use Case](#learn-spells-use-case)
         4. [Release Spell Use Case](#release-spell-use-case)
+        5. [Meditate Use Case](#meditate-use-case)
     2. [Endpoints](#-endpoints)
         1. [Ceremony](#ceremony)
         2. [Login](#login)
@@ -31,6 +32,7 @@ the use of *magic* by the individual.
         4. [Pray](#pray-1)
         5. [List Spells](#list-spells)
         6. [Learn Spell](#learn-spell)
+        7. [Meditate](#meditate)
     3. [Database](#-database)
 
 ## 🧊 What can individual do?
@@ -99,6 +101,12 @@ Thanks to the great advances in the field of *Magical Science*, *Arcane Biology*
 	1. If individual's mana is low, the release spell process fail.
 3. System gives the condensed knowledge to release.
 4. Individual release the spell.
+
+#### Meditate Use Case
+
+1. Individual starts the meditation.
+2. System calculate how many mp individual will receive.
+3. Individual has mp increased.
 
 ### 💍 Endpoints
 
@@ -234,6 +242,7 @@ $ curl -XGET http://localhost:8080/api/ceremony/profile \
 }
 ```
 - `400` `Invalid request data`
+- `401` `Unauthorized`
 - `404` `Individual with given ID was not found`
 - `500` `Failed to grab individual's metadata`
 
@@ -270,6 +279,7 @@ $ curl -XPOST http://localhost:8080/api/ceremony/pray \
 
 - `200` `Prayer successfuly complete`
 - `400` `Invalid request data`
+- `401` `Unauthorized`
 - `500` `Failed to grab individual's metadata`
 - `500` `Failed to complete prayer`
 
@@ -343,9 +353,35 @@ $ curl -XPOST http://localhost:8080/api/spells/1/learn \
 - `400` `Spell isn't available to learn`
 - `400` `Trying to learn a spell again`
 - `400` `Insufficient skill point`
+- `401` `Unauthorized`
 - `404` `Spell not found`
 - `500` `Failed to grab individual's metadata`
 - `500` `Failed to complete learning`
+</details>
+
+#### Meditate
+
+Increase the magic points through the meditation.
+
+<details>
+<summary><h5>Request</h5></summary>
+
+`POST` `/api/individuals/meditate`
+
+###### Request sample
+
+```sh
+$ curl -XPOST http://localhost:8080/api/individuals/meditate \
+       -H "Authorization: Bearer <token>"
+```
+</details>
+<details>
+<summary><h5>Response</h5></summary>
+
+- `200` `Meditation completed successfuly`
+- `401` `Unauthorized`
+- `500` `Failed to complete meditation`
+
 </details>
 
 ### 🧶 Database
