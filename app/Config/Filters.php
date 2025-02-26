@@ -110,6 +110,7 @@ class Filters extends BaseFilters
             'before' => [
                 '/api/individuals/*',
                 '/api/individuals',
+                '/api/spells/*/learn'
             ]
         ]
     ];
