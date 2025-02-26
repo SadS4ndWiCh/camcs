@@ -161,21 +161,7 @@ class IndividualModel extends Model
             );
         }
 
-        $individualMetadataModel = new IndividualMetadataModel();
-        $metadata = $individualMetadataModel
-            ->where('individual_id', $individualId)
-            ->first();
-
-        if (is_null($metadata)) {
-            log_message('critical', 'Individual "{id}"\'s metadata not found.', [
-                'id' => $individual['id']
-            ]);
-
-            throw new Exception(
-                'The system wasn\'t able to grab your metadata.',
-                ResponseInterface::HTTP_INTERNAL_SERVER_ERROR
-            );
-        }
+        $metadata = $this->getMetadataFromId($individual['id']);
 
         // Omit sensive data
         unset($individual['code']);
@@ -191,16 +177,6 @@ class IndividualModel extends Model
     public function pray($individual, string $prayer)
     {
         $metadata = $this->getMetadataFromId($individual['id']);
-        if (is_null($metadata)) {
-            log_message('critical', 'Individual "{id}"\'s metadata not found.', [
-                'id' => $individual['id']
-            ]);
-
-            throw new Exception(
-                'The system wasn\'t able to grab your metadata.',
-                ResponseInterface::HTTP_INTERNAL_SERVER_ERROR
-            );
-        }
 
         $insignia = InsigniaTypes::from_key($individual['insignia']);
 
@@ -253,16 +229,6 @@ class IndividualModel extends Model
         }
 
         $metadata = $this->getMetadataFromId($individual['id']);
-        if (is_null($metadata)) {
-            log_message('critical', 'Individual "{id}"\'s metadata not found.', [
-                'id' => $individual['id']
-            ]);
-
-            throw new Exception(
-                'The system wasn\'t able to grab your metadata.',
-                ResponseInterface::HTTP_INTERNAL_SERVER_ERROR
-            );
-        }
 
         if ($metadata['sp'] < $spell['price']) {
             throw new Exception(
@@ -329,17 +295,6 @@ class IndividualModel extends Model
         $individualModel = new IndividualModel();
         $metadata = $individualModel->getMetadataFromId($individualId);
 
-        if (is_null($metadata)) {
-            log_message('critical', 'Individual "{id}"\'s metadata not found.', [
-                'id' => $individualId
-            ]);
-
-            throw new Exception(
-                'The system wasn\'t able to grab your metadata.',
-                ResponseInterface::HTTP_INTERNAL_SERVER_ERROR
-            );
-        }
-
         if ($metadata['mp'] < $spell['mana']) {
             throw new Exception(
                 'You don\'t have mana enough to release this spell.',
@@ -365,16 +320,6 @@ class IndividualModel extends Model
     public function meditate($individual)
     {
         $metadata = $this->getMetadataFromId($individual['id']);
-        if (is_null($metadata)) {
-            log_message('critical', 'Individual "{id}"\'s metadata not found.', [
-                'id' => $individual['id']
-            ]);
-
-            throw new Exception(
-                'The system wasn\'t able to grab your metadata.',
-                ResponseInterface::HTTP_INTERNAL_SERVER_ERROR
-            );
-        }
 
         $recover = max(5, $metadata['mp'] * 0.05) + rand(0, 5);
         $metadata['mp'] += $recover;
@@ -396,6 +341,17 @@ class IndividualModel extends Model
         $metadata = $individualMetadataModel
             ->where('individual_id', $individualId)
             ->first();
+
+        if (is_null($metadata)) {
+            log_message('critical', 'Individual "{id}"\'s metadata not found.', [
+                'id' => $individualId
+            ]);
+
+            throw new Exception(
+                'The system wasn\'t able to grab your metadata.',
+                ResponseInterface::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
 
         return $metadata;
     }
