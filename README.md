@@ -21,15 +21,6 @@ From the *registration ceremony*, the individual is marked with an insignia that
 defines their aptitude and their strong point.  Moreover, but no less importantly, 
 it is through this ceremony that the individual is registered as an user of the system.
 
-Currently insignias:
-
-- Arcanum of Water
-- Arcanum of Earth
-- Arcanum of Fire
-- Arcanum of Air
-- Arcanum of Darkness
-- Arcanum of Light
-
 #### Pray
 
 Through prayer, the individual can receive more knowledge from the gods, which 
@@ -91,123 +82,251 @@ Thanks to the great advances in the field of *Magical Science*, *Arcane Biology*
 
 ### 💍 Endpoints
 
-#### Ceremony `POST` `/api/ceremony`
+#### Ceremony
 
-##### Body
+Do the registration to the system and receive the insignia.
 
-| Field      | Data Type | Description                  |
-| ---------- | --------- | ---------------------------- |
-| `name`     | `string`  | The individual's name        |
-| `soul`     | `string`  | The individual's soul        |
-| `code`     | `string`  | The individual's master code |
+<details>
+<summary><h5>Request</h5></summary>
 
-##### Responses
+`POST` `/api/ceremony`
 
-| Status | Response                       |
-| ------ | ------------------------------ |
-| `201`  | `{ "access_token": "string" }` |
-| `400`  | `Given soul already exists`    |
+###### Request body
 
-#### Ceremony Login `POST` `/api/ceremony/login`
+```json
+{
+    "name": "string",
+    "soul": "string",
+    "code": "string"
+}
+```
 
-##### Body
+###### Request sample
 
-| Field      | Data Type | Description                  |
-| ---------- | --------- | ---------------------------- |
-| `soul`     | `string`  | The individual's soul        |
-| `code`     | `string`  | The individual's master code |
+```sh
+$ curl -XPOST http://localhost:8080/api/ceremony \
+       -H "Content-Type: application/json"       \
+       -d '{ "name": "string", "soul": "string", "code": "string" }'
+```
+</details>
 
-##### Responses
+<details>
+<summary><h5>Responses</h5></summary>
 
-| Status | Response                       |
-| ------ | ------------------------------ |
-| `200`  | `{ "access_token": "string" }` |
-| `400`  | `Invalid sould or master code` |
+- `201` `Ceremony complete successfuly`
+```json
+{
+    "message": "string",
+    "access_token": "string"
+}
+```
+- `400` `Invalid request data`
+- `500` `Fail to complete ceremony`
 
-#### Individual Profile `GET` `/api/individual/profile`
+</details>
 
-##### Headers
+#### Login
 
-| Key              | Value            | Required |
-| ---------------- | ---------------- | -------- |
-| `Authentication` | `Bearer <token>` | `true`   |
+Do the login to the system given credentials of existing individual.
 
-##### Responses
+<details>
+<summary><h5>Request</h5></summary>
 
-| Status | Response                    |
-| ------ | --------------------------- |
-| `200`  | `{Individual}`              |
-| `401`  | `You must be authenticated` |
+`POST` `/api/ceremony/login`
 
-#### Pray `POST` `/api/individual/pray`
+###### Request body
 
-##### Body
+```json
+{
+    "soul": "string",
+    "code": "string"
+}
+```
 
-| Field      | Data Type | Description           |
-| ---------- | --------- | --------------------- |
-| `pray`     | `string`  | The individual's pray |
+###### Request sample
 
-##### Headers
+```sh
+$ curl -XPOST http://localhost:8080/api/ceremony/login \
+       -H "Content-Type: application/json"             \
+       -d '{ "soul": "string", "code": "string" }'
+```
+</details>
 
-| Key              | Value            | Required |
-| ---------------- | ---------------- | -------- |
-| `Authentication` | `Bearer <token>` | `true`   |
+<details>
+<summary><h5>Responses</h5></summary>
 
-##### Responses
+- `201` `Logged successfuly`
+```json
+{
+    "message": "string",
+    "access_token": "string
+}
+```
+- `400` `Invalid request data`
+- `401` `Individual's soul or code is invalid`
 
-| Status | Response                    |
-| ------ | --------------------------- |
-| `200`  | `OK`                        |
-| `401`  | `You must be authenticated` |
+</details>
 
-#### Spells To Learn `GET` `/api/spells`
+#### Profile
 
-##### Headers
+Get the currenlty logged individual's profile.
 
-| Key              | Value            | Required |
-| ---------------- | ---------------- | -------- |
-| `Authentication` | `Bearer <token>` | `false`  |
+<details>
+<summary><h5>Request</h5></summary>
 
-> A rate limit of 1 request each 10 seconds will be present if `Authentication` header is omited.
+`GET` `/api/individual/profile`
 
-##### Responses
+###### Request sample
 
-| Status | Response            |
-| ------ | ------------------- |
-| `200`  | `Spell[]`           |
-| `429`  | `Too Many Requests` |
+```sh
+$ curl -XGET http://localhost:8080/api/ceremony/profile \
+       -H "Authorization: Bearer <token>"
+```
+</details>
 
-#### Learn Spell `POST` `/api/spells/{id}/learn`
-
-##### Headers
-
-| Key              | Value            | Required |
-| ---------------- | ---------------- | -------- |
-| `Authentication` | `Bearer <token>` | `true`   |
-
-##### Responses
-
-| Status | Response                    |
-| ------ | --------------------------- |
-| `200`  | `OK`                        |
-| `400`  | `Insufficient skill points` |
-| `403`  | `Spell don't is available`  |
-
-#### Release Spell `POST` `/api/individual/spells/{id}/release`
-
-##### Headers
-
-| Key              | Value            | Required |
-| ---------------- | ---------------- | -------- |
-| `Authentication` | `Bearer <token>` | `true`   |
+<details>
+<summary><h5>Responses</h5></summary>
 
 ##### Responses
 
-| Status | Response                    |
-| ------ | --------------------------- |
-| `200`  | `OK`                        |
-| `400`  | `Insufficient mana points`  |
-| `404`  | `Spell not found`           |
+- `200` `The profile`
+```json
+{
+    "individual": {
+        "id": "int",
+        "name": "string",
+        "soul": "string",
+        "insignia": "string",
+        "updated_at": "datetime",
+        "created_at": "datetime"
+    },
+    "metadata": {
+        "id": "int",
+        "individual_id": "int",
+        "sp": "int",
+        "mp": "int",
+        "max_mp": "int",
+        "xp": "int",
+        "level": "int",
+        "updated_at": "datetime",
+        "created_at": "datetime"
+    }
+}
+```
+- `400` `Invalid request data`
+- `404` `Individual with given ID was not found`
+- `500` `Failed to grab individual's metadata`
+
+</details>
+
+#### Pray
+
+Sends a prayer to the gods and receives `skill points` based in the worth of the prayer.
+
+<details>
+<summary><h5>Request</h5></summary>
+
+`POST` `/api/individual/pray`
+
+###### Request body
+
+```json
+{
+    "prayer": "string"
+}
+```
+
+###### Request sample
+
+```sh
+$ curl -XPOST http://localhost:8080/api/ceremony/pray \
+       -H "Authorization: Bearer <token>"
+       -d '{ "prayer": "string" }'
+```
+</details>
+
+<details>
+<summary><h5>Responses</h5></summary>
+
+- `200` `Prayer successfuly complete`
+- `400` `Invalid request data`
+- `500` `Failed to grab individual's metadata`
+- `500` `Failed to complete prayer`
+
+</details>
+
+#### List Spells
+
+List all spells.
+
+<details>
+<summary><h5>Request</h5></summary>
+
+`GET` `/api/spells`
+
+###### Request sample
+
+```sh
+$ curl -XGET http://localhost:8080/api/spells \
+       -H "Authorization: Bearer <token>"
+```
+</details>
+
+<details>
+<summary><h5>Responses</h5></summary>
+
+- `200` `List of Spells`
+```json
+[
+    {
+        "id": "int",
+        "name": "string",
+        "type": "string",
+        "code": "string",
+        "price": "int",
+        "mana": "int",
+        "updated_at": "datetime",
+        "created_at": "datetime",
+        "available": "boolean",
+        "learned": "boolean"
+    },
+    ...
+]
+```
+- `429` `Too many requests`
+</details>
+
+#### Learn Spell
+
+Learn a new spell with the right amount of `skill points`.
+
+<details>
+<summary><h5>Request</h5></summary>
+
+`POST` `/api/spells/{id}/learn`
+
+###### Request params
+
+- `id`: The spell id, e.g. `2`.
+
+###### Request sample
+
+```sh
+$ curl -XPOST http://localhost:8080/api/spells/1/learn \
+       -H "Authorization: Bearer <token>"
+```
+</details>
+<details>
+<summary><h5>Response</h5></summary>
+
+- `200` `Spell learned successfuly`
+- `400` `Spell isn't available to learn`
+- `400` `Trying to learn a spell again`
+- `400` `Insufficient skill point`
+- `404` `Spell not found`
+- `500` `Failed to grab individual's metadata`
+- `500` `Failed to complete learning`
+</details>
 
 ### 🧶 Database
 
