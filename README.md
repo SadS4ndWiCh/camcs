@@ -187,7 +187,7 @@ $ curl -XPOST http://localhost:8080/api/ceremony/login \
 ```json
 {
     "message": "string",
-    "access_token": "string
+    "access_token": "string"
 }
 ```
 - `400` `Invalid request data`
