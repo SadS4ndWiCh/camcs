@@ -198,8 +198,6 @@ class IndividualModel extends Model
                 ResponseInterface::HTTP_INTERNAL_SERVER_ERROR
             );
         }
-
-        return true;
     }
 
     public function learnSpell($individual, $spellId)
@@ -213,8 +211,7 @@ class IndividualModel extends Model
             );
         }
 
-        $individualHasSpellsModel = new IndividualHasSpellsModel();
-        if ($individualHasSpellsModel->isIndividualHasSpell($individual['id'], $spellId)) {
+        if ($this->hasSpell($individual['id'], $spellId)) {
             throw new Exception(
                 'You already learned this spell. Why are you trying to learn again?',
                 ResponseInterface::HTTP_BAD_REQUEST
@@ -242,8 +239,10 @@ class IndividualModel extends Model
         $db = db_connect();
         $db->transStart();
 
+        $individualMetadataModel = new IndividualMetadataModel();
+        $individualHasSpellsModel = new IndividualHasSpellsModel();
+
         try {
-            $individualMetadataModel = new IndividualMetadataModel();
             $individualMetadataModel->update($metadata['id'], $metadata);
             $individualHasSpellsModel->insert([
                 'individual_id' => $individual['id'],
@@ -279,13 +278,7 @@ class IndividualModel extends Model
             );
         }
 
-        $individualHasSpellsModel = new IndividualHasSpellsModel();
-        $individualSpell = $individualHasSpellsModel
-            ->where('individual_id', $individualId)
-            ->where('spell_id', $spellId)
-            ->first();
-
-        if (is_null($individualSpell)) {
+        if ($this->hasSpell($individualId, $spellId)) {
             throw new Exception(
                 'You don\'t have this spell to release. Learn it or consider releasing another one.',
                 ResponseInterface::HTTP_NOT_FOUND
@@ -333,6 +326,17 @@ class IndividualModel extends Model
                 ResponseInterface::HTTP_INTERNAL_SERVER_ERROR
             );
         }
+    }
+
+    public function hasSpell($individualId, $spellId)
+    {
+        $individualHasSpellsModel = new IndividualHasSpellsModel();
+        $individualSpell = $individualHasSpellsModel
+            ->where('individual_id', $individualId)
+            ->where('spell_id', $spellId)
+            ->first();
+
+        return !is_null($individualSpell);
     }
 
     public function getMetadataFromId($individualId)
