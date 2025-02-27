@@ -97,6 +97,16 @@ class Individuals extends BaseController
                 ->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED);
         }
 
+        $throttler = service('throttler');
+        $throttlerId = sprintf('individual-meditate-%d', $individual['id']);
+
+        if (!$throttler->check($throttlerId, 2, MINUTE)) {
+            return $this->response
+                ->setHeader('RateLimit-Reset', $throttler->getTokenTime())
+                ->setJSON(['error' => 'Individual can only meditate twice every minute.'])
+                ->setStatusCode(ResponseInterface::HTTP_TOO_MANY_REQUESTS);
+        }
+
         $individualModel = new IndividualModel();
         $individualModel->meditate($individual);
 
