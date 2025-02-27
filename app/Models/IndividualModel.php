@@ -88,7 +88,8 @@ class IndividualModel extends Model
 
             throw new Exception(
                 'The ceremony wasn\'t able to even start. Maybe you already have an insignia?',
-                ResponseInterface::HTTP_INTERNAL_SERVER_ERROR
+                ResponseInterface::HTTP_INTERNAL_SERVER_ERROR,
+                $e
             );
         }
 
@@ -120,7 +121,8 @@ class IndividualModel extends Model
 
             throw new Exception(
                 'Maybe the gods don\'t like you. The ceremony was almost complete. You can try again.',
-                ResponseInterface::HTTP_INTERNAL_SERVER_ERROR
+                ResponseInterface::HTTP_INTERNAL_SERVER_ERROR,
+                $e
             );
         }
 
@@ -195,7 +197,8 @@ class IndividualModel extends Model
 
             throw new Exception(
                 'Something went wrong during the prayer. Do the prayer from deep in your heart.',
-                ResponseInterface::HTTP_INTERNAL_SERVER_ERROR
+                ResponseInterface::HTTP_INTERNAL_SERVER_ERROR,
+                $e
             );
         }
     }
@@ -259,7 +262,8 @@ class IndividualModel extends Model
 
             throw new Exception(
                 'Something went wrong in the learning process. You could try again.',
-                ResponseInterface::HTTP_INTERNAL_SERVER_ERROR
+                ResponseInterface::HTTP_INTERNAL_SERVER_ERROR,
+                $e
             );
         }
 
@@ -303,7 +307,8 @@ class IndividualModel extends Model
         } catch (Exception $e) {
             throw new Exception(
                 "The spell has almost been cast. Try again.",
-                ResponseInterface::HTTP_INTERNAL_SERVER_ERROR
+                ResponseInterface::HTTP_INTERNAL_SERVER_ERROR,
+                $e
             );
         }
 
@@ -323,7 +328,8 @@ class IndividualModel extends Model
         } catch (Exception $e) {
             throw new Exception(
                 'You\'ve lost your focus.',
-                ResponseInterface::HTTP_INTERNAL_SERVER_ERROR
+                ResponseInterface::HTTP_INTERNAL_SERVER_ERROR,
+                $e
             );
         }
     }
