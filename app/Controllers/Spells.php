@@ -11,7 +11,7 @@ class Spells extends BaseController
 {
     public function index()
     {
-        $individual = $this->getAuthenticated();
+        $individual = $this->getAuthenticated(true);
 
         // If individual isn't logged, is allowed only once request every 10 seconds.
         if (is_null($individual)) {
@@ -35,11 +35,6 @@ class Spells extends BaseController
     public function learn($spellId)
     {
         $individual = $this->getAuthenticated();
-        if (is_null($individual)) {
-            return $this->response
-                ->setJSON(['error' => 'Unauthorized'])
-                ->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED);
-        }
 
         $individualModel = new IndividualModel();
         $individualModel->learnSpell($individual, $spellId);

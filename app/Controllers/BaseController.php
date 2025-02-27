@@ -8,6 +8,7 @@ use CodeIgniter\HTTP\CLIRequest;
 use CodeIgniter\HTTP\IncomingRequest;
 use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
+use Exception;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -57,7 +58,15 @@ abstract class BaseController extends Controller
         // E.g.: $this->session = service('session');
     }
 
-    public function getAuthenticated()
+    /**
+     * Get the currently authenticated individual.
+     * 
+     * @param bool $returnNull If `true` it should return `null` if isn't authenticated.
+     * @return array|null
+     * @throws Exception Missing authentication token
+     * @throws Exception Invalid authentication token
+     */
+    public function getAuthenticated($returnNull = false)
     {
         $authenticationHeader = $this->request->getServer('HTTP_AUTHORIZATION');
 
@@ -65,12 +74,22 @@ abstract class BaseController extends Controller
 
         $token = JWT_extractTokenFromHeader($authenticationHeader);
         if (is_null($token)) {
-            return null;
+            if ($returnNull) return null;
+
+            throw new Exception(
+                'Missing authentication token',
+                ResponseInterface::HTTP_UNAUTHORIZED
+            );
         }
 
         $payload = JWT_validateToken($token);
         if (is_null($payload)) {
-            return null;
+            if ($returnNull) return null;
+
+            throw new Exception(
+                'Invalid authentication token',
+                ResponseInterface::HTTP_UNAUTHORIZED
+            );
         }
 
         $individualModel = new IndividualModel();

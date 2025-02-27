@@ -11,11 +11,6 @@ class Individuals extends BaseController
     public function profile()
     {
         $individual = $this->getAuthenticated();
-        if (is_null($individual)) {
-            return $this->response
-                ->setJSON(['error' => 'Unauthorized'])
-                ->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED);
-        }
 
         $individualModel = new IndividualModel();
         $profile = $individualModel->profile($individual['id']);
@@ -33,11 +28,6 @@ class Individuals extends BaseController
     public function pray()
     {
         $individual = $this->getAuthenticated();
-        if (is_null($individual)) {
-            return $this->response
-                ->setJSON(['error' => 'Unauthorized'])
-                ->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED);
-        }
 
         /*
             Individual can't abuse from pray system to farm points. So, is available 
@@ -75,11 +65,6 @@ class Individuals extends BaseController
     public function releaseSpell($spellId)
     {
         $individual = $this->getAuthenticated();
-        if (is_null($individual)) {
-            return $this->response
-                ->setJSON(['error' => 'Unauthorized'])
-                ->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED);
-        }
 
         $individualModel = new IndividualModel();
         $releasedSpell = $individualModel->releaseSpell($individual['id'], $spellId);
@@ -91,11 +76,6 @@ class Individuals extends BaseController
     public function meditate()
     {
         $individual = $this->getAuthenticated();
-        if (is_null($individual)) {
-            return $this->response
-                ->setJSON(['error' => 'Unauthorized'])
-                ->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED);
-        }
 
         $throttler = service('throttler');
         $throttlerId = sprintf('individual-meditate-%d', $individual['id']);
