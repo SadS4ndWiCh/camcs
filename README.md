@@ -63,6 +63,11 @@ system itself, which can be used to learn new spells or increase their attribute
 
 With their spells unleashed and enough mana, the individual can cast spells.
 
+#### Meditate
+
+Solve the lack of mana after releasing spells. You can increase by a little 
+percent of your max mana in each meditation.
+
 ## 🎀 How it was possible?
 
 Thanks to the great advances in the field of *Magical Science*, *Arcane Biology*, *Study of the Global Arcane Network* and *Ancient Technology*, this was made possible. You don't need to worry about understanding how it works behind the scenes, but know that through a safe and efficient process, even those with low or no aptitude will certainly be able to match a low to intermediate level mage.
