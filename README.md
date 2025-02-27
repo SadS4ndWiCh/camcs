@@ -456,7 +456,19 @@ $ curl -XPOST http://localhost:8080/api/individuals/meditate \
 
 ## 🎡 How to execute in my world?
 
-1. Setup enviroment variables
+1. Clone repository from GitHub
+
+```sh
+$ git clone https://github.com/SadS4ndWiCh/camcs && cd camcs
+```
+
+2. Install dependencies
+
+```sh
+$ composer install
+```
+
+3. Setup enviroment variables
 
 ```sh
 $ mv env .env
@@ -467,15 +479,17 @@ database.default.hostname =
 database.default.database = 
 database.default.username = 
 database.default.password = 
+
+JWT_SECRET_KEY =
 ```
 
-2. Execute migrations
+4. Execute migrations
 
 ```sh
 $ php spark migrate
 ```
 
-3. Run
+5. Run
 
 ```sh
 $ php spark serve
