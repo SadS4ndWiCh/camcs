@@ -17,6 +17,7 @@ the use of *magic* by the individual.
     3. [Achievement](#achievements)
     4. [Learn Spells](#learn-spells)
     5. [Release Spells](#release-spells)
+    6. [Meditate](#meditate)
 2. [How it was possible?](#-how-it-was-possible)
 3. [Steps of each process](#-steps-of-each-process)
     1. [How the system is structured?](#-how-the-system-is-structured)
@@ -34,6 +35,8 @@ the use of *magic* by the individual.
         6. [Learn Spell](#learn-spell)
         7. [Meditate](#meditate)
     3. [Database](#-database)
+4. [Progress of the system](#-progress-of-the-system)
+4. [How to execute in my world](#-how-to-execute-in-my-world)
 
 ## 🧊 What can individual do?
 
@@ -432,3 +435,48 @@ $ curl -XPOST http://localhost:8080/api/individuals/meditate \
 | `id`            | `PK` `INT` `AUTO_INCREMENT` | The achievement's id    |
 | `name`          | `VARCHAR(64)`               | The achievement's name  |
 | `type`          | `INT`                       | The achievement's type  |
+
+## 🎎 Progress of the system
+
+- [x] Authentication
+    - [x] Registration Ceremony
+    - [x] Login
+- [ ] Individual
+    - [x] Pray
+    - [x] Meditate
+    - [x] Learn Spells
+    - [x] Release Spells
+    - [ ] Status Attributes
+    - [ ] Receive Achievements On Actions
+- [ ] Achievements
+    - [ ] Special Effects
+- [ ] Leveling System
+    - [ ] Gain XP On Actions
+    - [ ] Increase Level Based On XP
+
+## 🎡 How to execute in my world?
+
+1. Setup enviroment variables
+
+```sh
+$ mv env .env
+```
+
+```env
+database.default.hostname = 
+database.default.database = 
+database.default.username = 
+database.default.password = 
+```
+
+2. Execute migrations
+
+```sh
+$ php spark migrate
+```
+
+3. Run
+
+```sh
+$ php spark serve
+```
