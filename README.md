@@ -126,7 +126,7 @@ Thanks to the great advances in the field of *Magical Science*, *Arcane Biology*
 
 Do the registration to the system and receive the insignia.
 
-<details>
+<details open>
 <summary><h5>Request</h5></summary>
 
 `POST` `/api/ceremony`
@@ -169,7 +169,7 @@ $ curl -XPOST http://localhost:8080/api/ceremony \
 
 Do the login to the system given credentials of existing individual.
 
-<details>
+<details open>
 <summary><h5>Request</h5></summary>
 
 `POST` `/api/ceremony/login`
@@ -211,7 +211,7 @@ $ curl -XPOST http://localhost:8080/api/ceremony/login \
 
 Get the currenlty logged individual's profile.
 
-<details>
+<details open>
 <summary><h5>Request</h5></summary>
 
 `GET` `/api/individual/profile`
@@ -264,7 +264,7 @@ $ curl -XGET http://localhost:8080/api/ceremony/profile \
 
 Sends a prayer to the gods and receives `skill points` based in the worth of the prayer.
 
-<details>
+<details open>
 <summary><h5>Request</h5></summary>
 
 `POST` `/api/individual/pray`
@@ -301,7 +301,7 @@ $ curl -XPOST http://localhost:8080/api/ceremony/pray \
 
 List all spells.
 
-<details>
+<details open>
 <summary><h5>Request</h5></summary>
 
 `GET` `/api/spells`
@@ -342,7 +342,7 @@ $ curl -XGET http://localhost:8080/api/spells \
 
 Learn a new spell with the right amount of `skill points`.
 
-<details>
+<details open>
 <summary><h5>Request</h5></summary>
 
 `POST` `/api/spells/{id}/learn`
@@ -375,7 +375,7 @@ $ curl -XPOST http://localhost:8080/api/spells/1/learn \
 
 Increase the magic points through the meditation.
 
-<details>
+<details open>
 <summary><h5>Request</h5></summary>
 
 `POST` `/api/individuals/meditate`
