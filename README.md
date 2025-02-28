@@ -9,6 +9,10 @@ A global system to support the individual in the control of *Arcane Magic*. Mana
 the control of *mana* and mediates communication with the gods in order to facilitate 
 the use of *magic* by the individual.
 
+> [!IMPORTANT]
+> Due to the magic invocation process being mediated by the system, the number of 
+> available spells is limited, with no freedom to explore the creation of new spells.
+
 ## 🛝 Summary
 
 1. [What can individual do?](#-what-can-individual-do)
@@ -36,7 +40,7 @@ the use of *magic* by the individual.
         7. [Meditate](#meditate)
     3. [Database](#-database)
 4. [Progress of the system](#-progress-of-the-system)
-4. [How to execute in my world](#-how-to-execute-in-my-world)
+4. [How to execute in my world?](#-how-to-execute-in-my-world)
 
 ## 🧊 What can individual do?
 
