@@ -17,7 +17,15 @@ class IndividualMetadataModel extends Model
     protected bool $allowEmptyInserts = false;
     protected bool $updateOnlyChanged = true;
 
-    protected array $casts = [];
+    protected array $casts = [
+        'id'            => 'int',
+        'individual_id' => 'int',
+        'sp'            => 'int',
+        'mp'            => 'int',
+        'max_mp'        => 'int',
+        'xp'            => 'int',
+        'level'         => 'int',
+    ];
     protected array $castHandlers = [];
 
     // Dates

@@ -17,7 +17,11 @@ class IndividualHasSpellsModel extends Model
     protected bool $allowEmptyInserts = false;
     protected bool $updateOnlyChanged = true;
 
-    protected array $casts = [];
+    protected array $casts = [
+        'id'            => 'int',
+        'individual_id' => 'int',
+        'spell_id'      => 'int',
+    ];
     protected array $castHandlers = [];
 
     // Dates
