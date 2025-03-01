@@ -95,6 +95,18 @@ abstract class BaseController extends Controller
         $individualModel = new IndividualModel();
         $individual = $individualModel->find($payload->id);
 
+        if (is_null($individual)) {
+            log_message('warning', 'Try to log in with a non-existing individual ID: {id}', [
+                'id' => $payload->id,
+                'ip' => $this->request->getIPAddress()
+            ]);
+
+            throw new Exception(
+                'Invalid individual ID',
+                ResponseInterface::HTTP_UNAUTHORIZED
+            );
+        }
+
         return $individual;
     }
 }
