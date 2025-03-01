@@ -133,20 +133,18 @@ Do the registration to the system and receive the insignia.
 
 ###### Request body
 
-```json
-{
-    "name": "string",
-    "soul": "string",
-    "code": "string"
-}
-```
+| Field   | Data Type | Required | Description                |
+| ------- | --------- | -------- | -------------------------- |
+| `name`  | `string`  | `true`   | Display name to the system |
+| `soul`  | `string`  | `true`   | An unique identifier       |
+| `code`  | `string`  | `true`   | The secret access code     |
 
 ###### Request sample
 
 ```sh
 $ curl -XPOST http://localhost:8080/api/ceremony \
        -H "Content-Type: application/json"       \
-       -d '{ "name": "string", "soul": "string", "code": "string" }'
+       -d '{ "name": "John Doe", "soul": "earth.john.askdjfoi", "code": "strongcode" }'
 ```
 </details>
 
@@ -176,19 +174,17 @@ Do the login to the system given credentials of existing individual.
 
 ###### Request body
 
-```json
-{
-    "soul": "string",
-    "code": "string"
-}
-```
+| Field   | Data Type | Required | Description            |
+| ------- | --------- | -------- | ---------------------- |
+| `soul`  | `string`  | `true`   | The unique identifier  |
+| `code`  | `string`  | `true`   | The secret access code |
 
 ###### Request sample
 
 ```sh
 $ curl -XPOST http://localhost:8080/api/ceremony/login \
        -H "Content-Type: application/json"             \
-       -d '{ "soul": "string", "code": "string" }'
+       -d '{ "soul": "earth.john.askdjfoi", "code": "strongcode" }'
 ```
 </details>
 
@@ -271,11 +267,9 @@ Sends a prayer to the gods and receives `skill points` based in the worth of the
 
 ###### Request body
 
-```json
-{
-    "prayer": "string"
-}
-```
+| Field     | Data Type | Required | Description              |
+| --------- | --------- | -------- | ------------------------ |
+| `prayer`  | `string`  | `true`   | The individual's prayer  |
 
 ###### Request sample
 
@@ -349,7 +343,9 @@ Learn a new spell with the right amount of `skill points`.
 
 ###### Request params
 
-- `id`: The spell id, e.g. `2`.
+| Field | Data Type | Required | Description              |
+| ----- | --------- | -------- | ------------------------ |
+| `id`  | `int`     | `true`   | The ID of spell to learn |
 
 ###### Request sample
 
