@@ -79,6 +79,7 @@ class IndividualModel extends Model
         // entries.
         $db = db_connect();
         $db->transStart();
+        $db->transException(true);
 
         try {
             $individual['id'] = $this->insert($individual);
@@ -243,6 +244,7 @@ class IndividualModel extends Model
 
         $db = db_connect();
         $db->transStart();
+        $db->transException(true);
 
         $individualMetadataModel = new IndividualMetadataModel();
         $individualHasSpellsModel = new IndividualHasSpellsModel();
