@@ -284,7 +284,7 @@ class IndividualModel extends Model
             );
         }
 
-        if ($this->hasSpell($individualId, $spellId)) {
+        if (!$this->hasSpell($individualId, $spellId)) {
             throw new Exception(
                 'You don\'t have this spell to release. Learn it or consider releasing another one.',
                 ResponseInterface::HTTP_NOT_FOUND
