@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Controllers\BaseController;
+use App\Exceptions\ValidationException;
 use App\Models\IndividualModel;
 use CodeIgniter\HTTP\ResponseInterface;
 
@@ -49,9 +50,7 @@ class Individuals extends BaseController
 
         $data = $this->request->getJSON(true);
         if (!$this->validateData($data, $rules)) {
-            return $this->response
-                ->setJSON(['error' => $this->validator->getErrors()])
-                ->setStatusCode(ResponseInterface::HTTP_BAD_REQUEST);
+            throw ValidationException::forRequestValidationError($this->validator);
         }
 
         $prayer = $data['prayer'];
