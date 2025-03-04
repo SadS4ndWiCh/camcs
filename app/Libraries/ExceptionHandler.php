@@ -15,13 +15,15 @@ class ExceptionHandler extends BaseExceptionHandler implements ExceptionHandlerI
     {
         if ($exception instanceof CAMCSException) {
             $statusCode = $exception->getCode();
+            $response->setJSON($exception->getJSON());
+        } else {
+            $response->setJSON([
+                'status' => $statusCode,
+                'error'  => $exception->getMessage()
+            ]);
         }
 
         $response
-            ->setJSON([
-                'status' => $statusCode,
-                'error'  => $exception->getMessage()
-            ])
             ->setStatusCode($statusCode)
             ->send();
 

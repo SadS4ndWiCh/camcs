@@ -15,4 +15,12 @@ class CAMCSException extends Exception
     ) {
         parent::__construct($message, $code, $previous);
     }
+
+    public function getJSON()
+    {
+        return [
+            'status'   => $this->code,
+            'error' => $this->message
+        ];
+    }
 }
