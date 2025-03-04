@@ -3,6 +3,7 @@
 namespace App\Libraries;
 
 use Throwable;
+use App\Exceptions\CAMCSException;
 use CodeIgniter\Debug\BaseExceptionHandler;
 use CodeIgniter\Debug\ExceptionHandlerInterface;
 use CodeIgniter\HTTP\RequestInterface;
@@ -12,14 +13,14 @@ class ExceptionHandler extends BaseExceptionHandler implements ExceptionHandlerI
 {
     public function handle(Throwable $exception, RequestInterface $request, ResponseInterface $response, int $statusCode, int $exitCode): void
     {
-        $exceptionCode = $exception->getCode();
-        if ($exceptionCode >= 100 && $exceptionCode <= 599)
-            $statusCode = $exceptionCode;
+        if ($exception instanceof CAMCSException) {
+            $statusCode = $exception->getCode();
+        }
 
         $response
             ->setJSON([
-                'status'    => $statusCode,
-                'error'   => $exception->getMessage()
+                'status' => $statusCode,
+                'error'  => $exception->getMessage()
             ])
             ->setStatusCode($statusCode)
             ->send();
