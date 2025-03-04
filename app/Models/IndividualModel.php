@@ -36,7 +36,12 @@ class IndividualModel extends Model
     protected $deletedField  = 'deleted_at';
 
     // Validation
-    protected $validationRules      = [];
+    protected $validationRules      = [
+        'name'     => 'required|min_length[6]|max_length[64]',
+        'soul'     => 'required|min_length[6]|max_length[255]|is_unique[individuals.soul]',
+        'code'     => 'required|min_length[6]|max_length[255]',
+        'insignia' => 'required|integer'
+    ];
     protected $validationMessages   = [];
     protected $skipValidation       = false;
     protected $cleanValidationRules = true;
@@ -83,7 +88,7 @@ class IndividualModel extends Model
         $db->transStart();
 
         $individual['id'] = $this->insert($individual);
-        if ($db->transStatus() === false) {
+        if ($individual['id'] === false || $db->transStatus() === false) {
             $db->transRollback();
             log_message('critical', 'Failed to complete ceremony due individual creation');
 
@@ -110,7 +115,7 @@ class IndividualModel extends Model
         $individualMetadataModel = new IndividualMetadataModel();
 
         $metadata['id'] = $individualMetadataModel->insert($metadata);
-        if ($db->transStatus() === false) {
+        if ($metadata['id'] === false || $db->transStatus() === false) {
             $db->transRollback();
             log_message('critical', 'Failed to complete ceremony due metadata creation');
 
