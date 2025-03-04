@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\InsigniaTypes;
 use App\Exceptions\AuthException;
+use App\Exceptions\IndividualException;
 use CodeIgniter\HTTP\ResponseInterface;
 use CodeIgniter\Model;
 use Config\Services;
@@ -179,11 +180,7 @@ class IndividualModel extends Model
                 'message' => $e->getMessage(),
             ]);
 
-            throw new Exception(
-                'Something went wrong during the prayer. Do the prayer from deep in your heart.',
-                ResponseInterface::HTTP_INTERNAL_SERVER_ERROR,
-                $e
-            );
+            throw IndividualException::forPrayFailToUpdateSP($e);
         }
     }
 
@@ -192,64 +189,55 @@ class IndividualModel extends Model
         $spellModel = new SpellModel();
         $spell = $spellModel->find($spellId);
         if (is_null($spell)) {
-            throw new Exception(
-                'You are trying to learn a spell that even exists. Take it seriously.',
-                ResponseInterface::HTTP_NOT_FOUND
-            );
+            throw IndividualException::forLearnAnUnexistingSpell();
         }
 
         if ($this->hasSpell($individual['id'], $spellId)) {
-            throw new Exception(
-                'You already learned this spell. Why are you trying to learn again?',
-                ResponseInterface::HTTP_BAD_REQUEST
-            );
+            throw IndividualException::forLearnAnAlreadyLearnedSpell();
         }
 
         if (!$spellModel->isSpellAvailableToIndividualLearn($spell, $individual)) {
-            throw new Exception(
-                'You cannot learn this spell. Try to learn another that matches your insignia.',
-                ResponseInterface::HTTP_BAD_REQUEST
-            );
+            throw IndividualException::forLearnAnUnavailableSpell();
         }
 
         $metadata = $this->getMetadataFromId($individual['id']);
 
         if ($metadata['sp'] < $spell['price']) {
-            throw new Exception(
-                'You lack points. Get some job or pray to the gods.',
-                ResponseInterface::HTTP_BAD_REQUEST
-            );
+            throw IndividualException::forLearnWithoutEnoughPoints();
         }
 
         $metadata['sp'] -= $spell['price'];
 
         $db = db_connect();
         $db->transStart();
-        $db->transException(true);
 
         $individualMetadataModel = new IndividualMetadataModel();
-        $individualHasSpellsModel = new IndividualHasSpellsModel();
-
-        try {
-            $individualMetadataModel->update($metadata['id'], $metadata);
-            $individualHasSpellsModel->insert([
-                'individual_id' => $individual['id'],
-                'spell_id'      => $spellId
-            ]);
-        } catch (Exception $e) {
+        $individualMetadataModel->update($metadata['id'], $metadata);
+        if ($db->transStatus() === false) {
             $db->transRollback();
 
-            log_message('critical', 'Failed to "{individualId}" learn spell "{spellId}": {message}', [
+            log_message('critical', 'Failed to update metadata from "{individualId}" in learn spell "{spellId}" process', [
                 'individualId' => $individual['id'],
                 'spellId'      => $spellId,
-                'message'      => $e->getMessage()
             ]);
 
-            throw new Exception(
-                'Something went wrong in the learning process. You could try again.',
-                ResponseInterface::HTTP_INTERNAL_SERVER_ERROR,
-                $e
-            );
+            throw IndividualException::forLearnFailsToUpdateMetadata();
+        }
+
+        $individualHasSpellsModel = new IndividualHasSpellsModel();
+        $individualHasSpellsModel->insert([
+            'individual_id' => $individual['id'],
+            'spell_id'      => $spellId
+        ]);
+        if ($db->transStatus() === false) {
+            $db->transRollback();
+
+            log_message('critical', 'Failed to insert spell "{spellId}" as learned to "{individualId}"', [
+                'individualId' => $individual['id'],
+                'spellId'      => $spellId
+            ]);
+
+            throw IndividualException::forLearnFailsToInsertSpellAsLearned();
         }
 
         $db->transComplete();
@@ -261,27 +249,18 @@ class IndividualModel extends Model
         $spell = $spellModel->find($spellId);
 
         if (is_null($spell)) {
-            throw new Exception(
-                'You are trying to release a spell that even exists. Take it seriously.',
-                ResponseInterface::HTTP_BAD_REQUEST
-            );
+            throw IndividualException::forReleaseAnUnexistingSpell();
         }
 
         if (!$this->hasSpell($individualId, $spellId)) {
-            throw new Exception(
-                'You don\'t have this spell to release. Learn it or consider releasing another one.',
-                ResponseInterface::HTTP_NOT_FOUND
-            );
+            throw IndividualException::forReleaseNotLearnedSpell();
         }
 
         $individualModel = new IndividualModel();
         $metadata = $individualModel->getMetadataFromId($individualId);
 
         if ($metadata['mp'] < $spell['mana']) {
-            throw new Exception(
-                'You don\'t have mana enough to release this spell.',
-                ResponseInterface::HTTP_BAD_REQUEST
-            );
+            throw IndividualException::forReleaseWithoutEnoughMana();
         }
 
         $metadata['mp'] -= $spell['mana'];
@@ -290,11 +269,7 @@ class IndividualModel extends Model
             $individualMetadataModel = new IndividualMetadataModel();
             $individualMetadataModel->update($metadata['id'], $metadata);
         } catch (Exception $e) {
-            throw new Exception(
-                "The spell has almost been cast. Try again.",
-                ResponseInterface::HTTP_INTERNAL_SERVER_ERROR,
-                $e
-            );
+            throw IndividualException::forReleaseFailToUpdateMetadata($e);
         }
 
         return $spell;
@@ -311,11 +286,7 @@ class IndividualModel extends Model
             $individualMetadataModel = new IndividualMetadataModel();
             $individualMetadataModel->update($metadata['id'], $metadata);
         } catch (Exception $e) {
-            throw new Exception(
-                'You\'ve lost your focus.',
-                ResponseInterface::HTTP_INTERNAL_SERVER_ERROR,
-                $e
-            );
+            throw IndividualException::forMeditateFailToUpdateMetadata($e);
         }
     }
 
@@ -342,10 +313,7 @@ class IndividualModel extends Model
                 'id' => $individualId
             ]);
 
-            throw new Exception(
-                'The system wasn\'t able to grab your metadata.',
-                ResponseInterface::HTTP_INTERNAL_SERVER_ERROR
-            );
+            throw IndividualException::forFailsToGrabIndividualMetadata();
         }
 
         return $metadata;
