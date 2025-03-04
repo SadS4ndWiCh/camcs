@@ -112,7 +112,7 @@ class IndividualModel extends Model
         $metadata['id'] = $individualMetadataModel->insert($metadata);
         if ($db->transStatus() === false) {
             $db->transRollback();
-            log_message('crititcal', 'Failed to complete ceremony due metadata creation');
+            log_message('critical', 'Failed to complete ceremony due metadata creation');
 
             throw AuthException::forCeremonyFailToInsertMetadata();
         }
