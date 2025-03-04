@@ -3,7 +3,6 @@
 namespace App\Controllers;
 
 use App\Controllers\BaseController;
-use App\Enums\InsigniaTypes;
 use App\Models\IndividualModel;
 use CodeIgniter\HTTP\ResponseInterface;
 
@@ -23,8 +22,6 @@ class Auth extends BaseController
                 ->setJSON(['error' => $this->validator->getErrors()])
                 ->setStatusCode(ResponseInterface::HTTP_BAD_REQUEST);
         }
-
-        $data['insignia'] = InsigniaTypes::random_key();
 
         $individualModel = new IndividualModel();
         $individualId = $individualModel->ceremony($data);

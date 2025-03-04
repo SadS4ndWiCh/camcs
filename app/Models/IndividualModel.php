@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\InsigniaTypes;
+use App\Exceptions\AuthException;
 use CodeIgniter\HTTP\ResponseInterface;
 use CodeIgniter\Model;
 use Config\Services;
@@ -79,23 +80,16 @@ class IndividualModel extends Model
         // entries.
         $db = db_connect();
         $db->transStart();
-        $db->transException(true);
 
-        try {
-            $individual['id'] = $this->insert($individual);
-        } catch (Exception $e) {
+        $individual['id'] = $this->insert($individual);
+        if ($db->transStatus() === false) {
             $db->transRollback();
-            log_message('critical', 'Failed to complete ceremony due individual creation: {message}', [
-                'message' => $e->getMessage()
-            ]);
+            log_message('critical', 'Failed to complete ceremony due individual creation');
 
-            throw new Exception(
-                'The ceremony wasn\'t able to even start. Maybe you already have an insignia?',
-                ResponseInterface::HTTP_INTERNAL_SERVER_ERROR,
-                $e
-            );
+            throw AuthException::forCeremonyFailToInsertIndividual();
         }
 
+        $individual['insignia'] = InsigniaTypes::random_key();
         $insignia = InsigniaTypes::from_key($individual['insignia']);
         $metadata = match ($insignia) {
             InsigniaTypes::DARKNESS, InsigniaTypes::LIGHT => [
@@ -114,19 +108,12 @@ class IndividualModel extends Model
 
         $individualMetadataModel = new IndividualMetadataModel();
 
-        try {
-            $metadata['id'] = $individualMetadataModel->insert($metadata);
-        } catch (Exception $e) {
+        $metadata['id'] = $individualMetadataModel->insert($metadata);
+        if ($db->transStatus() === false) {
             $db->transRollback();
-            log_message('crititcal', 'Failed to complete ceremony due metadata creation: {message}', [
-                'message' => $e->getMessage()
-            ]);
+            log_message('crititcal', 'Failed to complete ceremony due metadata creation');
 
-            throw new Exception(
-                'Maybe the gods don\'t like you. The ceremony was almost complete. You can try again.',
-                ResponseInterface::HTTP_INTERNAL_SERVER_ERROR,
-                $e
-            );
+            throw AuthException::forCeremonyFailToInsertMetadata();
         }
 
         $db->transComplete();
@@ -140,17 +127,11 @@ class IndividualModel extends Model
             ->first();
 
         if (is_null($individual)) {
-            throw new Exception(
-                'Individual\'s soul or code is invalid.',
-                ResponseInterface::HTTP_UNAUTHORIZED
-            );
+            throw AuthException::forLoginWrongCredentials();
         }
 
         if (!password_verify($credentials['code'], $individual['code'])) {
-            throw new Exception(
-                'Individual\'s soul or code is invalid.',
-                ResponseInterface::HTTP_UNAUTHORIZED
-            );
+            throw AuthException::forLoginWrongCredentials();
         }
 
         return $individual['id'];
